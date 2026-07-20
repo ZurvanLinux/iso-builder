@@ -1,0 +1,6 @@
+#!/bin/sh
+# auto/clean — removes generated live-build artifacts, keeping committed config.
+
+set -e
+
+lb clean "${@}"
