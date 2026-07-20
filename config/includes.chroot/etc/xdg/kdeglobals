@@ -1,0 +1,11 @@
+# Zurvan Linux KDE system-wide defaults.
+#
+# The full "Zurvan Dark/Light" color scheme with the teal accent is a Phase 2
+# deliverable (branding-assets, M2.1). Until then we ship Breeze Dark as the
+# default scheme; M2.1 will replace this with ZurvanDark.colors.
+[General]
+ColorScheme=BreezeDark
+
+[KDE]
+LookAndFeelPackage=org.kde.breezedark.desktop
+SingleClick=false

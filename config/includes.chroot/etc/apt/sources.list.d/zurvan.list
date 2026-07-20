@@ -1,0 +1,12 @@
+# Zurvan Linux custom APT repository (distribution-update-strategy.md §2).
+#
+# COMMENTED per the project plan's M1.1b fallback: M1.2 signing is not yet live
+# (it depends on P0 - the offline GPG key + repo secrets + committed public.key).
+# Uncomment after P0 completes and the keyring is present at install time:
+#
+#   sudo install -d -m 755 /etc/apt/keyrings
+#   curl -fsSL https://repo.zurvanlinux.org/public.key \
+#     | gpg --dearmor \
+#     | sudo tee /etc/apt/keyrings/zurvan-archive-keyring.gpg > /dev/null
+#
+# deb [arch=amd64 signed-by=/etc/apt/keyrings/zurvan-archive-keyring.gpg] https://repo.zurvanlinux.org zurvan main

@@ -1,0 +1,11 @@
+# Zurvan Linux — §4 Essential Desktop Applications
+# (package-manifest.md §4)
+#
+# NOTE: `spectacle` was renamed to `kde-spectacle` in Debian 13.
+dolphin
+konsole
+systemsettings
+kde-spectacle
+ark
+kwrite
+kcalc

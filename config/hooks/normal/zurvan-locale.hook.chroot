@@ -1,0 +1,17 @@
+#!/bin/sh
+# Zurvan Linux chroot hook — locale generation + timezone pin.
+# Runs during the live-build chroot stage.
+set -e
+
+# Generate the Persian + English UTF-8 locales used by the live system.
+echo "fa_IR.UTF-8 UTF-8" >> /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+locale-gen
+
+# Pin the system timezone to Asia/Tehran (technical-spec-architecture.md §3.2).
+echo "Asia/Tehran" > /etc/timezone
+rm -f /etc/localtime
+ln -s /usr/share/zoneinfo/Asia/Tehran /etc/localtime
+
+# Default system locale (Persian -> Jalali calendar + RTL mirroring).
+echo "LANG=fa_IR.UTF-8" > /etc/default/locale

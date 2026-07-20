@@ -1,0 +1,13 @@
+# Zurvan Linux — §5 Universal Multimedia Codecs & HW Acceleration
+# (package-manifest.md §5)
+ffmpeg
+libavcodec-extra
+gstreamer1.0-libav
+gstreamer1.0-plugins-base
+gstreamer1.0-plugins-good
+gstreamer1.0-plugins-bad
+gstreamer1.0-plugins-ugly
+gstreamer1.0-vaapi
+intel-media-va-driver
+mesa-va-drivers
+vdpau-driver-all

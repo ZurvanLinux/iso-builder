@@ -1,0 +1,10 @@
+# Zurvan Linux keyboard configuration (ui-ux-localization-plan.md §4).
+# US English (default) + Persian (ISIRI 9147) via the standard `ir` xkb layout.
+# The `ir` layout maps ZWNJ (نیم‌فاصله, U+200C) to Shift+Space by default.
+# Toggle: Alt+Shift AND Super+Space both switch layouts.
+KEYMAP=us
+XKBMODEL="pc105"
+XKBLAYOUT="us,ir"
+XKBVARIANT=","
+XKBOPTIONS="grp:alt_shift_toggle,grp:win_space_toggle"
+BACKSPACE="yes"

@@ -1,18 +1,16 @@
 #!/bin/sh
 # auto/config — live-build configuration entry point for Zurvan Linux.
 #
-# M1.1a scope: minimal CLI proof build. Its only purpose is to prove that
-# `lb build` runs successfully inside the privileged GitHub Actions container
-# (loop-device + disk-pressure probe). No desktop, no custom config.
-# contrib/non-free/non-free-firmware are intentionally NOT enabled here;
-# they are added in M1.1b per technical-spec-architecture.md §2.2.
+# M1.1b scope: full spec-compliant KDE Plasma 6.7 baseline on Debian 13.
+# contrib/non-free/non-free-firmware enabled per technical-spec-architecture.md
+# §2.2 (firmware-iwlwifi/-realtek/-atheros live in non-free-firmware).
 
 set -e
 
 lb config noauto \
     --distribution trixie \
     --architecture amd64 \
-    --archive-areas "main" \
+    --archive-areas "main contrib non-free non-free-firmware" \
     --binary-images iso-hybrid \
     --debian-installer none \
     --mirror-bootstrap        "http://deb.debian.org/debian/" \
@@ -22,5 +20,6 @@ lb config noauto \
     --iso-application "Zurvan Linux" \
     --iso-publisher   "Zurvan Linux - https://zurvanlinux.org" \
     --iso-preparer    "Zurvan Linux live-build pipeline (iso-builder)" \
-    --iso-volume      "ZURVAN_MINIMAL" \
+    --iso-volume      "ZURVAN_KDE" \
     "${@}"
+
