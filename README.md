@@ -2,14 +2,15 @@
 
 Debian `live-build` configuration and GitHub Actions ISO build pipeline for **Zurvan Linux**.
 
-## Current state: M1.1b — full KDE Plasma 6.7 baseline
+## Current state: M1.1b — full KDE Plasma baseline
 
-The full spec-compliant desktop baseline. Builds Debian 13 (`trixie`) `amd64` with
-the complete KDE Plasma 6.7 stack, multimedia codecs, hardware firmware, Flatpak
-integration, Calamares, and Persian-first localization baked in.
+The full spec-compliant desktop baseline. Builds Debian Stable (pinned to the
+`trixie` codename) `amd64` with the complete KDE Plasma stack, multimedia codecs,
+hardware firmware, Flatpak integration, Calamares, and Persian-first localization
+baked in.
 
-- **Base:** Debian 13 (`trixie`), `amd64` only; `main` + `contrib` + `non-free` + `non-free-firmware`.
-- **Desktop:** KDE Plasma 6.7, **Wayland session by default** (X11 fallback), SDDM, Plymouth.
+- **Base:** Debian Stable (pinned to the `trixie` codename), `amd64` only; `main` + `contrib` + `non-free` + `non-free-firmware`.
+- **Desktop:** KDE Plasma (latest stable), **Wayland session by default** (X11 fallback), SDDM, Plymouth.
 - **Fonts/localization:** `fonts-vazirmatn` as system default via `/etc/fonts/local.conf`; `fa_IR.UTF-8` locale (RTL mirroring + Jalali calendar); ISIRI 9147 `ir` keyboard with ZWNJ on `Shift+Space`; `Asia/Tehran` timezone.
 - **Firmware:** `firmware-linux{,-nonfree}`, `firmware-iwlwifi/-realtek/-atheros`, `nvidia-detect`.
 - **Installer:** Calamares + `calamares-settings-debian` (branding customization is Phase 3).
@@ -18,16 +19,16 @@ integration, Calamares, and Persian-first localization baked in.
 > behavior on hosted runners) is superseded by this milestone. The build pipeline
 > itself is unchanged and proven.
 
-### Debian 13 / Plasma 6 substitutions vs. `package-manifest.md`
+### Debian Stable / Plasma substitutions vs. `package-manifest.md`
 
-The spec was written against package names that drifted in Debian 13. Substitutions
+The spec was written against package names that drifted in current Debian Stable. Substitutions
 are documented inline in each list and summarized here:
 
 | Manifest name | In ISO | Reason |
 |---|---|---|
 | `plasma-workspace-wayland` | dropped (use `plasma-workspace`) | Folded into `plasma-workspace` in Plasma 6 (verified via madison). |
 | `khotkeys` | dropped | Removed in Plasma 6; shortcuts now use KDE's built-in global-accel. |
-| `spectacle` | `kde-spectacle` | Renamed in Debian 13. |
+| `spectacle` | `kde-spectacle` | Renamed in current Debian Stable. |
 | `zurvan-dns-bypass` | commented | Custom package, built in Phase 2 (M2.2), published to the Zurvan APT repo. |
 | `fonts-vazirmatn` "Vazirmatn UI FD" monospace | not set | The Debian package ships only the proportional Vazirmatn family; the Farsi-Digits monospace variant is bundled from Google Fonts in Phase 2 (branding-assets, M2.1). Flagged spec divergence — `local.conf` leaves monospace at the system default meanwhile. |
 
@@ -35,7 +36,7 @@ are documented inline in each list and summarized here:
 
 ```
 auto/
-  config                          # -> lb config (trixie/amd64, all archive areas, ISO metadata)
+  config                          # -> lb config (amd64, all archive areas, ISO metadata)
 config/
   package-lists/                  # one file per package-manifest.md section (§1-§10 + firmware)
   includes.chroot/                # files overlaid into the chroot at / 
@@ -94,6 +95,25 @@ Builds must pass in **both** QEMU/KVM and VirtualBox (BIOS + UEFI): reaches the
 Plasma desktop, Vazirmatn renders Persian, `us`/`ir` toggle + ZWNJ work,
 Asia/Tehran auto-applied, Wi-Fi firmware loads, Flathub visible in Discover,
 Calamares launches, `apt update` is clean. Tag `v0.2.0-pre` once verified.
+
+## Bump runbook: new Debian stable release
+
+Zurvan pins the build to a Debian **codename** (`trixie` today) rather than the
+rolling `stable` suite — for reproducibility and a stable security-suite path
+(`trixie-security`). When Debian releases a new stable (e.g. trixie → forky):
+
+1. Update `--distribution` in `auto/config` to the new codename.
+2. Re-resolve and repin the build container in BOTH workflows:
+   - `.github/workflows/build-iso.yml` (iso-builder)
+   - `apt-repository/.github/workflows/publish-repo.yml`
+   Resolve the amd64 manifest digest (`docker pull debian:<codename>` or the
+   registry API) and pin `debian:<codename>@sha256:…`.
+3. Re-verify every package name in `config/package-lists/` against the new suite
+   via Debian madison — package names drift across Debian + Plasma majors (see
+   the substitution notes in `03-plasma.list.chroot`).
+4. Update the "(pinned to the `<codename>` codename)" note in this README.
+5. Trigger `build-iso.yml`, boot-test in QEMU/KVM + VirtualBox (BIOS + UEFI),
+   and run the full `testing-qa-checklist.md` before tagging a pre-release.
 
 ## Out of scope here
 

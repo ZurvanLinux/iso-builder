@@ -1,9 +1,14 @@
 #!/bin/sh
 # auto/config — live-build configuration entry point for Zurvan Linux.
 #
-# M1.1b scope: full spec-compliant KDE Plasma 6.7 baseline on Debian 13.
+# M1.1b scope: full spec-compliant KDE Plasma baseline on Debian Stable.
 # contrib/non-free/non-free-firmware enabled per technical-spec-architecture.md
 # §2.2 (firmware-iwlwifi/-realtek/-atheros live in non-free-firmware).
+#
+# The build pins the Debian *codename* (trixie, the current stable) rather than
+# the rolling `stable` suite, for reproducibility and a stable security-suite
+# path (trixie-security). When Debian releases a new stable, bump this codename
+# + the container image; see the "Bump runbook" section in README.md.
 
 set -e
 
