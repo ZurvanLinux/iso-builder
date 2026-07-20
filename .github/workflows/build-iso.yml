@@ -49,12 +49,23 @@ jobs:
           # Report free space so disk pressure is visible in logs.
           df -h / /mnt 2>/dev/null || df -h /
 
-      - name: Install live-build
+      - name: Install live-build and ISO toolchain
         run: |
           set -eux
+          export DEBIAN_FRONTEND=noninteractive
           apt-get update
-          apt-get install -y --no-install-recommends live-build ca-certificates curl jq
-          lb version
+          # Explicit toolchain + --no-install-recommends keeps the build host
+          # reproducible (live-build's Recommends set drifts across releases).
+          # These packages provide mksquashfs, xorriso, isolinux/syslinux (BIOS
+          # hybrid), and grub-pc/grub-efi-amd64 binaries (UEFI) that lb_binary needs.
+          apt-get install -y --no-install-recommends \
+            live-build debootstrap \
+            squashfs-tools xorriso \
+            isolinux syslinux syslinux-common \
+            grub-pc-bin grub-efi-amd64-bin \
+            mtools dosfstools \
+            ca-certificates curl jq
+          dpkg-query -W live-build debootstrap squashfs-tools xorriso isolinux grub-pc-bin grub-efi-amd64-bin
 
       - name: Configure (lb config via auto/config)
         run: |
