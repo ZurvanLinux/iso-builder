@@ -1,0 +1,21 @@
+# live-build: generated control files (regenerated from auto/config each build)
+config/bootstrap
+config/binary
+config/common
+config/source
+
+# live-build: build stages and caches
+chroot/
+binary/
+.build/
+.cache/
+
+# generated ISO images and metadata
+*.iso
+*.iso.zsync
+*.contents
+*.packages
+*.file-list*
+
+# logs
+*.log

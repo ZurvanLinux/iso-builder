@@ -1,0 +1,6 @@
+#!/bin/sh
+# auto/build — runs `lb build` using the config produced by auto/config.
+
+set -e
+
+lb build "${@}"

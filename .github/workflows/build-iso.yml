@@ -1,0 +1,137 @@
+name: Build ISO (live-build)
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Optional pre-release tag (e.g. v0.1.0-pre.1). Leave empty to only upload a workflow artifact.'
+        required: false
+        type: string
+  push:
+    tags:
+      - 'v0.1.0-pre.*'
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: build-iso-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write   # required to create a GitHub Release on tag/dispatch
+
+jobs:
+  build:
+    name: Build minimal ISO (debian:trixie, live-build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    container:
+      # Pinned by digest for reproducibility (plan: pin debian:trixie).
+      # amd64 manifest digest of library/debian:trixie at time of commit.
+      image: debian:trixie@sha256:d63a99144861e4e460196ed93d07777490cbeab53ca660c434f2a589a6c50ea3
+      options: --privileged
+
+    steps:
+      - name: Checkout live-build config
+        uses: actions/checkout@v4
+
+      - name: Provision loop devices
+        run: |
+          set -eux
+          # lb_binary mounts the squashfs via losetup. In the privileged container
+          # the loop-control device may need creating. Probe at the end.
+          if [ ! -e /dev/loop-control ]; then
+            mknod /dev/loop-control c 10 237
+          fi
+          for i in $(seq 0 7); do
+            [ -e "/dev/loop$i" ] || mknod "/dev/loop$i" b 7 "$i"
+          done
+          losetup -f
+          # Report free space so disk pressure is visible in logs.
+          df -h / /mnt 2>/dev/null || df -h /
+
+      - name: Install live-build
+        run: |
+          set -eux
+          apt-get update
+          apt-get install -y --no-install-recommends live-build ca-certificates curl jq
+          lb version
+
+      - name: Configure (lb config via auto/config)
+        run: |
+          set -eux
+          cd "$GITHUB_WORKSPACE"
+          ./auto/config
+
+      - name: Build ISO (lb build)
+        run: |
+          set -eux
+          cd "$GITHUB_WORKSPACE"
+          ./auto/build
+
+      - name: Collect ISO and SHA256
+        id: collect
+        run: |
+          set -eux
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p out
+          # live-build names the image live-image-<arch>.<type>.iso for iso-hybrid.
+          cp -v live-image-amd64.hybrid.iso out/ 2>/dev/null || \
+            cp -v *.iso out/ 2>/dev/null || { echo "No ISO produced"; exit 1; }
+          cd out
+          sha256sum *.iso > SHA256SUMS
+          echo "===== SHA256SUMS ====="
+          cat SHA256SUMS
+          ls -la
+
+      - name: Upload ISO as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zurvan-minimal-iso
+          path: out/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Resolve release tag
+        id: rel
+        run: |
+          tag="${{ github.event.inputs.release_tag }}"
+          if [ -z "$tag" ] && [ "${GITHUB_REF#refs/tags/}" != "$GITHUB_REF" ]; then
+            tag="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Resolved release tag: ${tag:-<none>}"
+
+      - name: Create pre-release and attach ISO + SHA256
+        if: ${{ steps.rel.outputs.tag != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eux
+          cd "$GITHUB_WORKSPACE/out"
+          tag="${{ steps.rel.outputs.tag }}"
+          api="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY"
+          # Create the release (prerelease). If it already exists, reuse it.
+          rel_json=$(jq -n --arg t "$tag" --arg n "Zurvan Linux $tag (minimal proof build)" \
+            '{tag_name:$t, name:$n, body:"Automated minimal proof build (M1.1a). CLI-only, no desktop environment.", prerelease:true, target_commitish:"main"}')
+          upload_url=$(curl -fsSL -X POST \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "$api/releases" -d "$rel_json" \
+            | jq -r '.upload_url // empty' \
+            || true)
+          if [ -z "$upload_url" ]; then
+            # Release likely exists already; fetch it.
+            upload_url=$(curl -fsSL \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+              "$api/releases/tags/$tag" | jq -r '.upload_url')
+          fi
+          upload_base="${upload_url%\{?name,label\}}"
+          for f in *.iso SHA256SUMS; do
+            curl -fsSL -X POST \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary "@$f" \
+              "${upload_base}?name=$(basename "$f")"
+          done
