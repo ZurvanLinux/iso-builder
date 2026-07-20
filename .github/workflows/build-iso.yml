@@ -9,7 +9,7 @@ on:
         type: string
   push:
     tags:
-      - 'v0.1.0-pre.*'
+      - 'v*.*.*-pre.*'
 
 # Cancel superseded runs on the same ref.
 concurrency:
@@ -64,8 +64,9 @@ jobs:
             isolinux syslinux syslinux-common \
             grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools \
-            ca-certificates curl jq
-          dpkg-query -W live-build debootstrap squashfs-tools xorriso isolinux grub-pc-bin grub-efi-amd64-bin
+            ca-certificates curl jq \
+            rclone
+          dpkg-query -W live-build debootstrap squashfs-tools xorriso isolinux grub-pc-bin grub-efi-amd64-bin rclone
 
       - name: Configure (lb config)
         run: |
@@ -117,37 +118,89 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "Resolved release tag: ${tag:-<none>}"
 
-      - name: Create pre-release and attach ISO + SHA256
+      - name: Create GitHub Release (notes + SHA256SUMS)
         if: ${{ steps.rel.outputs.tag != '' }}
+        id: ghrel
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -eux
           cd "$GITHUB_WORKSPACE/out"
           tag="${{ steps.rel.outputs.tag }}"
+          ver="${tag#v}"
           api="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY"
-          # Create the release (prerelease). If it already exists, reuse it.
-          rel_json=$(jq -n --arg t "$tag" --arg n "Zurvan Linux $tag (minimal proof build)" \
-            '{tag_name:$t, name:$n, body:"Automated minimal proof build (M1.1a). CLI-only, no desktop environment.", prerelease:true, target_commitish:"main"}')
-          upload_url=$(curl -fsSL -X POST \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              "$api/releases" -d "$rel_json" \
-            | jq -r '.upload_url // empty' \
-            || true)
-          if [ -z "$upload_url" ]; then
-            # Release likely exists already; fetch it.
-            upload_url=$(curl -fsSL \
+          sha="$(cut -d' ' -f1 SHA256SUMS)"
+          # The ISO is NOT attached here: a full KDE ISO exceeds GitHub's 2 GB
+          # per-asset cap. It is published to Cloudflare R2 in the next step;
+          # this release holds the notes + the small SHA256SUMS file.
+          rel_id=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+              "$api/releases/tags/$tag" | jq -r '.id // empty' || true)
+          if [ -z "$rel_id" ]; then
+            rel_id=$(curl -fsSL -X POST \
                 -H "Authorization: Bearer $GH_TOKEN" \
                 -H "Accept: application/vnd.github+json" \
-              "$api/releases/tags/$tag" | jq -r '.upload_url')
+                "$api/releases" -d "$(jq -n --arg t "$tag" --arg n "Zurvan Linux $tag" \
+                  '{tag_name:$t, name:$n, body:"ISO publishing to Cloudflare R2 in progress; see the workflow run.", prerelease:true, target_commitish:"main"}')" \
+              | jq -r '.id')
           fi
+          # Attach only SHA256SUMS (the ISO lives on R2).
+          upload_url=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+              "$api/releases/$rel_id" | jq -r '.upload_url')
           upload_base="${upload_url%\{?name,label\}}"
-          for f in *.iso SHA256SUMS; do
-            curl -fsSL -X POST \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              -H "Content-Type: application/octet-stream" \
-              --data-binary "@$f" \
-              "${upload_base}?name=$(basename "$f")"
-          done
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: text/plain" \
+            --data-binary "@SHA256SUMS" "${upload_base}?name=SHA256SUMS" || true
+          echo "release_id=$rel_id" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "ver=$ver" >> "$GITHUB_OUTPUT"
+
+      - name: Upload ISO to Cloudflare R2
+        if: ${{ steps.rel.outputs.tag != '' }}
+        id: r2
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          VER: ${{ steps.ghrel.outputs.ver }}
+        run: |
+          set -eux
+          cd "$GITHUB_WORKSPACE/out"
+          if [ -z "$R2_ACCESS_KEY_ID" ] || [ -z "$R2_SECRET_ACCESS_KEY" ] || [ -z "$R2_ENDPOINT" ] || [ -z "$R2_BUCKET" ]; then
+            echo "::error::R2 secrets are not set. Complete the R2 maintainer prereqs (bucket + public access + download.zurvanlinux.org custom domain + R2 API token) and add R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/R2_ENDPOINT/R2_BUCKET to this repo's secrets before this workflow can publish the ISO."
+            exit 1
+          fi
+          ISO="zurvan-${VER}-amd64.iso"
+          cp -v live-image-amd64.hybrid.iso "$ISO"
+          sha256sum "$ISO" > "${ISO}.sha256"
+          # rclone, env-configured for the R2 S3-compatible API (no config file).
+          export RCLONE_CONFIG_R2_TYPE=s3
+          export RCLONE_CONFIG_R2_PROVIDER=Cloudflare
+          export RCLONE_CONFIG_R2_ENDPOINT="$R2_ENDPOINT"
+          export RCLONE_CONFIG_R2_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID"
+          export RCLONE_CONFIG_R2_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY"
+          rclone copyto "$ISO" "r2:${R2_BUCKET}/iso/${ISO}"
+          rclone copyto "${ISO}.sha256" "r2:${R2_BUCKET}/iso/${ISO}.sha256"
+          url="https://download.zurvanlinux.org/iso/${ISO}"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Published ISO: $url"
+
+      - name: Link R2 download in the release body
+        if: ${{ steps.rel.outputs.tag != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_ID: ${{ steps.ghrel.outputs.release_id }}
+          URL: ${{ steps.r2.outputs.url }}
+          SHA: ${{ steps.ghrel.outputs.sha }}
+          TAG: ${{ steps.rel.outputs.tag }}
+        run: |
+          set -eux
+          api="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY"
+          body="$(printf 'Zurvan Linux %s pre-release.\n\n**Download ISO:** %s\n**SHA256:** %s\n\nThe ISO is hosted on Cloudflare R2 (zero-egress). This GitHub Release holds the release notes and the attached SHA256SUMS file.' "$TAG" "$URL" "$SHA")"
+          curl -fsSL -X PATCH \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "$api/releases/$RELEASE_ID" -d "$(jq -n --arg b "$body" '{body:$b}')" >/dev/null
+          echo "Release body updated with $URL"

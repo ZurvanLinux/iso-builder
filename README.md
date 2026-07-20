@@ -68,14 +68,37 @@ config/
   M1.1a minimal build).
 - **Outputs:** `live-image-amd64.hybrid.iso` + `SHA256SUMS` are uploaded as a
   workflow artifact (`zurvan-minimal-iso`) on every run. If a `release_tag` input
-  (or a pushed `v0.1.0-pre.*` / `v0.2.0-pre.*` tag) is supplied, a GitHub
-  **pre-release** is created. (Note: GitHub caps a single release asset at 2 GB; a
-  full KDE ISO may exceed that — verify before tagging.)
+  (or a pushed `v*.*.*-pre.*` tag) is supplied, the workflow **publishes** the ISO:
+  - creates a GitHub **pre-release** with the release notes + `SHA256SUMS` (the
+    ISO is *not* a GitHub asset — it exceeds GitHub's 2 GB per-asset cap), and
+  - uploads `zurvan-<version>-amd64.iso` + `.sha256` to **Cloudflare R2**, then
+    writes the R2 download URL + SHA256 into the release body.
+
+### ISO hosting: Cloudflare R2
+
+A full KDE ISO is ~2.3 GB, above GitHub Releases' **2 GB per-asset cap**, so the
+ISO binary is published to a **Cloudflare R2** bucket (zero-egress object storage)
+served at **`https://download.zurvanlinux.org/iso/zurvan-<version>-amd64.iso`**
+(the subdomain is bound to the bucket as a Cloudflare custom domain). GitHub
+Releases keeps the release notes + `SHA256SUMS` and links to the R2 URL. The
+upload uses `rclone` (R2's S3-compatible API), env-configured from secrets.
+
+**Maintainer prerequisites** (block the first release-to-R2; see the project plan):
+
+1. Create the R2 bucket (e.g. `zurvan-iso`) and enable public access.
+2. Bind `download.zurvanlinux.org` to the bucket as a Cloudflare custom domain.
+3. Create an R2 API token (Object Read & Write); note the Access Key ID, Secret,
+   and S3 endpoint (`https://<accountid>.r2.cloudflarestorage.com`).
+4. Add `iso-builder` Actions secrets: `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
+   `R2_ENDPOINT`, `R2_BUCKET`.
+
+Until these exist, a tagged build creates the GitHub Release + artifact but the R2
+upload step fails with a clear `::error::` (artifact-only, no-tag runs are unaffected).
 
 ### Triggers
 
 - `workflow_dispatch` — manual, optional `release_tag` input.
-- `push` to tags matching `v0.1.0-pre.*` and `v0.2.0-pre.*` — automatic pre-release.
+- `push` to tags matching `v*.*.*-pre.*` — automatic pre-release + R2 publish.
 
 ### Run it
 
