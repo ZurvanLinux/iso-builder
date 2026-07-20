@@ -1,0 +1,8 @@
+# Zurvan Linux — §9 Custom Zurvan Utilities
+# (package-manifest.md §9)
+#
+# zurvan-dns-bypass is a custom package built in Phase 2 and published to the
+# Zurvan APT repo (repo.zurvanlinux.org). It is NOT available yet, so it is
+# commented out here. M2.2 will build + sign it; M2.3 wires it back in here.
+#
+# zurvan-dns-bypass

@@ -1,0 +1,9 @@
+# Zurvan Linux — §1 Core System & Base Utilities
+# (package-manifest.md §1)
+xserver-xorg
+xwayland
+network-manager
+user-setup
+sudo
+eject
+locales
