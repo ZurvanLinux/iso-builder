@@ -17,10 +17,8 @@ baseline (M1.1b) is committed.
 ## Repository layout
 
 ```
-auto/                      # live-build entry points (run lb config/build/clean)
-  config                   #   -> lb config (distribution, mirrors, ISO metadata)
-  build                    #   -> lb build
-  clean                    #   -> lb clean
+auto/
+  config                   # -> lb config (distribution, mirrors, ISO metadata)
 config/
   package-lists/
     zurvan-minimal.list.chroot   # M1.1a package set (live-boot, kernel, CLI utils)
@@ -30,6 +28,10 @@ config/
 
 `.gitignore` excludes live-build generated control files and build stages
 (`chroot/`, `binary/`, `.build/`); only the authored config is committed.
+
+> Note: `lb build` / `lb clean` are invoked via the `lb` wrapper directly (no
+> `auto/build`/`auto/clean` scripts). Calling `./auto/*` scripts by hand bypasses
+> live-build's recursion sentinel and loops until "Argument list too long".
 
 ## Build pipeline (`.github/workflows/build-iso.yml`)
 

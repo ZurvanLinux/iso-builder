@@ -67,17 +67,22 @@ jobs:
             ca-certificates curl jq
           dpkg-query -W live-build debootstrap squashfs-tools xorriso isolinux grub-pc-bin grub-efi-amd64-bin
 
-      - name: Configure (lb config via auto/config)
+      - name: Configure (lb config)
         run: |
           set -eux
           cd "$GITHUB_WORKSPACE"
-          ./auto/config
+          # The lb wrapper detects auto/config and runs it; auto/config calls
+          # `lb config noauto ...` so there is no recursion.
+          lb config
 
       - name: Build ISO (lb build)
         run: |
           set -eux
           cd "$GITHUB_WORKSPACE"
-          ./auto/build
+          # Invoke lb (the wrapper), NOT ./auto/build. Calling the auto script
+          # directly bypasses live-build's recursion sentinel and loops until
+          # "Argument list too long".
+          lb build
 
       - name: Collect ISO and SHA256
         id: collect
