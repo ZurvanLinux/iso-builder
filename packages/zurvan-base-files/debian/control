@@ -1,0 +1,12 @@
+Source: zurvan-base-files
+Section: misc
+Priority: optional
+Maintainer: Zurvan Linux Developers <dev@zurvanlinux.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.7.4
+
+Package: zurvan-base-files
+Architecture: all
+Depends: ${misc:Depends}, base-files (>= 2.1.12)
+Description: Zurvan Linux base system identity
+ Overrides Debian identity files to provide Zurvan Linux branding.

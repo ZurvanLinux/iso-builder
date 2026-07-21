@@ -25,6 +25,7 @@ lb config noauto \
     --iso-application "Zurvan Linux" \
     --iso-publisher   "Zurvan Linux - https://zurvanlinux.org" \
     --iso-preparer    "Zurvan Linux live-build pipeline (iso-builder)" \
-    --iso-volume      "ZURVAN_KDE" \
+    --iso-volume      "ZURVAN_LIVE" \
+    --grub-distributor "Zurvan" \
     "${@}"
 

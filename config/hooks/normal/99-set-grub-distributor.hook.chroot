@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+if [ -f /etc/default/grub ]; then
+    sed -i 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="Zurvan"/' /etc/default/grub || true
+    if ! grep -q '^GRUB_DISTRIBUTOR=' /etc/default/grub; then
+        echo 'GRUB_DISTRIBUTOR="Zurvan"' >> /etc/default/grub
+    fi
+fi
+
+exit 0

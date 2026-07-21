@@ -34,6 +34,13 @@ jobs:
       - name: Checkout live-build config
         uses: actions/checkout@v4
 
+      - name: Checkout zurvan-config
+        uses: actions/checkout@v4
+        with:
+          repository: ZurvanLinux/zurvan-config
+          path: /tmp/zurvan-config
+          ref: main
+
       - name: Provision loop devices
         run: |
           set -eux
@@ -65,8 +72,18 @@ jobs:
             grub-pc-bin grub-efi-amd64-bin \
             mtools dosfstools \
             ca-certificates curl jq \
-            rclone
-          dpkg-query -W live-build debootstrap squashfs-tools xorriso isolinux grub-pc-bin grub-efi-amd64-bin rclone
+            rclone \
+            dpkg-dev debhelper fakeroot
+          dpkg-query -W live-build debootstrap squashfs-tools xorriso isolinux grub-pc-bin grub-efi-amd64-bin rclone dpkg-dev debhelper fakeroot
+
+      - name: Build zurvan-base-files
+        run: |
+          set -eux
+          cd "$GITHUB_WORKSPACE/packages/zurvan-base-files"
+          dpkg-buildpackage -us -uc -b
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p config/packages.chroot
+          cp -v packages/zurvan-base-files_*.deb config/packages.chroot/
 
       - name: Configure (lb config)
         run: |

@@ -1,0 +1,14 @@
+[Branding]
+name=@NAME@
+version=@DISTRIB_RELEASE@
+shortname=@SHORTNAME@
+description=@DISTRIB_DESCRIPTION@
+shortdescription=@SHORTNAME@
+homepage=https://zurvanlinux.org/
+bugreport=https://github.com/ZurvanLinux/iso-builder/issues
+
+[Image]
+productlogo=
+productlogoname=
+wallpaper=
+wallpapername=

@@ -1,0 +1,11 @@
+PRETTY_NAME="@PRETTY_NAME@"
+NAME="@NAME@"
+VERSION_ID="@VERSION_ID@"
+VERSION="@VERSION@"
+ID=@ID@
+ID_LIKE=debian
+HOME_URL="https://zurvanlinux.org/"
+SUPPORT_URL="https://github.com/ZurvanLinux"
+BUG_REPORT_URL="https://github.com/ZurvanLinux/iso-builder/issues"
+VERSION_CODENAME=@VERSION_CODENAME@
+DEBIAN_CODENAME=@DEBIAN_CODENAME@

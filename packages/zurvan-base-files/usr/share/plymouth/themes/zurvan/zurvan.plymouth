@@ -1,0 +1,9 @@
+[Plymouth Theme]
+Name=Zurvan
+Description=Zurvan Linux Plymouth Theme
+Comment=A simple theme for Zurvan Linux
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/zurvan
+ScriptFile=/usr/share/plymouth/themes/zurvan/zurvan.script

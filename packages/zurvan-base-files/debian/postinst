@@ -1,0 +1,22 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+configure)
+	if [ -d /usr/share/plymouth/themes/zurvan ]; then
+		if [ -f /usr/share/plymouth/themes/zurvan/zurvan.plymouth ]; then
+			update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/zurvan/zurvan.plymouth 50 || true
+			update-initramfs -u >/dev/null 2>&1 || true
+		fi
+	fi
+
+	for f in os-release lsb-release hostname issue issue.net; do
+		dpkg-divert --divert "/etc/$f.distrib" --rename "/etc/$f" 2>/dev/null || true
+		if [ -f "/etc/$f.distrib" ]; then
+			cp -f "/etc/$f.distrib" "/etc/$f" || true
+		fi
+	done
+	;;
+esac
+
+exit 0

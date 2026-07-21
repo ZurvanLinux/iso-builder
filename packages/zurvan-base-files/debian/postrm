@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+remove)
+	for f in os-release lsb-release hostname issue issue.net; do
+		if [ -f "/etc/$f.distrib" ]; then
+			mv -f "/etc/$f.distrib" "/etc/$f" 2>/dev/null || true
+		fi
+		dpkg-divert --remove --rename "/etc/$f" >/dev/null 2>&1 || true
+	done
+	;;
+purge)
+	for f in os-release lsb-release hostname issue issue.net; do
+		dpkg-divert --remove --rename "/etc/$f" >/dev/null 2>&1 || true
+	done
+	;;
+abort-install|abort-upgrade)
+	;;
+*)
+	echo "postrm called with unknown argument \`$1'" >&2
+	exit 1
+	;;
+esac
+
+exit 0
