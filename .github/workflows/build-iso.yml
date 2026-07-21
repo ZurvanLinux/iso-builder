@@ -125,6 +125,14 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Upload zurvan-base-files deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zurvan-base-files-deb
+          path: packages/zurvan-base-files_*.deb
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Resolve release tag
         id: rel
         run: |
@@ -243,29 +251,26 @@ jobs:
           path: /tmp/zurvan-config
           ref: main
 
+      - name: Download zurvan-base-files deb artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: zurvan-base-files-deb
+          path: /tmp/artifact
+
       - name: Install test dependencies
         run: |
           set -eux
           export DEBIAN_FRONTEND=noninteractive
           apt-get update
           apt-get install -y --no-install-recommends \
-            debootstrap \
-            dpkg-dev debhelper fakeroot \
-            qemu-user-static
-
-      - name: Build zurvan-base-files for upgrade tests
-        run: |
-          set -eux
-          cd "$GITHUB_WORKSPACE/packages/zurvan-base-files"
-          dpkg-buildpackage -us -uc -b
-          cd "$GITHUB_WORKSPACE"
-          mkdir -p config/packages.chroot
-          cp -v packages/zurvan-base-files_*.deb config/packages.chroot/
+            debootstrap
 
       - name: Run upgrade-path test suite
         run: |
           set -eux
           cd "$GITHUB_WORKSPACE"
+          mkdir -p packages
+          cp "/tmp/artifact/"zurvan-base-files_*.deb packages/ 2>/dev/null || true
           export CHROOT="/tmp/zurvan-upgrade-chroot"
           tests/upgrade/run.sh || { tests/upgrade/cleanup.sh; exit 1; }
           tests/upgrade/cleanup.sh

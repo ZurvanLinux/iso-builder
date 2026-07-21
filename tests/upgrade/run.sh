@@ -1,5 +1,4 @@
 #!/bin/sh
-set -e
 CHROOT="${CHROOT:-/tmp/zurvan-upgrade-chroot}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PASS=0
@@ -15,15 +14,12 @@ run_tc() {
     else
         echo "FAIL $name"
         FAIL=$((FAIL + 1))
-        return 1
     fi
 }
 
 for tc in "$SCRIPT_DIR"/tc-*.sh; do
     name="$(basename "$tc")"
-    if ! run_tc "$name" sh "$tc"; then
-        :
-    fi
+    run_tc "$name" sh "$tc"
 done
 
 echo "=== SUMMARY ==="

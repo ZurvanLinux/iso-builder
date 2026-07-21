@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 CHROOT="${CHROOT:-/tmp/zurvan-upgrade-chroot}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/chroot-setup.sh"
+
 DEB="$(ls packages/zurvan-base-files_*.deb | head -n1)"
 [ -n "$DEB" ]
 
