@@ -2,13 +2,15 @@
 set -e
 CHROOT="${CHROOT:-/tmp/zurvan-upgrade-chroot}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=tests/upgrade/chroot-setup.sh
 . "$SCRIPT_DIR/chroot-setup.sh"
 
-DEB="$(ls packages/zurvan-base-files_*.deb | head -n1)"
+DEB="$(find packages -maxdepth 1 -name 'zurvan-base-files_*.deb' -print -quit)"
 [ -n "$DEB" ]
 
 chroot "$CHROOT" dpkg -i "/workspace/$DEB" >/dev/null 2>&1
 
+# shellcheck disable=SC1091
 . "$CHROOT/etc/os-release"
 [ "$NAME" = "Zurvan" ]
 [ "$VERSION_CODENAME" = "akaran" ]
