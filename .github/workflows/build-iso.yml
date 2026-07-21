@@ -178,6 +178,7 @@ jobs:
           # rclone, env-configured for the R2 S3-compatible API (no config file).
           export RCLONE_CONFIG_R2_TYPE=s3
           export RCLONE_CONFIG_R2_PROVIDER=Cloudflare
+          export RCLONE_CONFIG_R2_REGION=auto
           export RCLONE_CONFIG_R2_ENDPOINT="$R2_ENDPOINT"
           export RCLONE_CONFIG_R2_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID"
           export RCLONE_CONFIG_R2_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY"
