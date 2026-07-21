@@ -4,9 +4,7 @@ set -e
 case "$1" in
 install|upgrade)
 	for f in /etc/os-release /etc/lsb-release /etc/hostname /etc/issue /etc/issue.net; do
-		if [ -e "$f" ] && ! dpkg-divert --list "$f" >/dev/null 2>&1; then
-			dpkg-divert --divert "$f.distrib" --rename "$f" || true
-		fi
+		dpkg-divert --divert "$f.distrib" --rename "$f" 2>/dev/null || true
 	done
 	;;
 abort-upgrade)
