@@ -9,6 +9,12 @@ configure)
 			update-initramfs -u >/dev/null 2>&1 || true
 		fi
 	fi
+
+	for f in os-release lsb-release hostname issue issue.net; do
+		if [ -f "/etc/$f.distrib" ]; then
+			cp -f "/etc/$f.distrib" "/etc/$f" || true
+		fi
+	done
 	;;
 esac
 

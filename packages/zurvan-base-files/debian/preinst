@@ -3,8 +3,16 @@ set -e
 
 case "$1" in
 install|upgrade)
+	for f in /etc/os-release /etc/lsb-release /etc/hostname /etc/issue /etc/issue.net; do
+		if [ -e "$f" ] && ! dpkg-divert --list "$f" >/dev/null 2>&1; then
+			dpkg-divert --divert "$f.distrib" --rename "$f" || true
+		fi
+	done
 	;;
 abort-upgrade)
+	for f in /etc/os-release /etc/lsb-release /etc/hostname /etc/issue /etc/issue.net; do
+		dpkg-divert --remove --rename "$f" >/dev/null 2>&1 || true
+	done
 	;;
 *)
 	echo "preinst called with unknown argument \`$1'" >&2
