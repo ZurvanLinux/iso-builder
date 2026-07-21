@@ -1,9 +1,9 @@
 [Branding]
-name=Zurvan Linux
-version=0.2
-shortname=Zurvan
-description=Zurvan Linux 0.2
-shortdescription=Zurvan
+name=@NAME@
+version=@DISTRIB_RELEASE@
+shortname=@SHORTNAME@
+description=@DISTRIB_DESCRIPTION@
+shortdescription=@SHORTNAME@
 homepage=https://zurvanlinux.org/
 bugreport=https://github.com/ZurvanLinux/iso-builder/issues
 

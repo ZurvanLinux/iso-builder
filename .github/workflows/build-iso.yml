@@ -34,6 +34,13 @@ jobs:
       - name: Checkout live-build config
         uses: actions/checkout@v4
 
+      - name: Checkout zurvan-config
+        uses: actions/checkout@v4
+        with:
+          repository: ZurvanLinux/zurvan-config
+          path: /tmp/zurvan-config
+          ref: main
+
       - name: Provision loop devices
         run: |
           set -eux

@@ -6,16 +6,58 @@ DESTDIR = debian/zurvan-base-files
 	dh $@
 
 override_dh_auto_install:
-	install -p -m 644 etc/* $(DESTDIR)/etc
-	install -d $(DESTDIR)/usr/share/plymouth/themes/zurvan
-	install -p -m 644 usr/share/plymouth/themes/zurvan/* $(DESTDIR)/usr/share/plymouth/themes/zurvan/
-	install -d $(DESTDIR)/usr/share/calamares/branding/zurvan
-	install -p -m 644 usr/share/calamares/branding/zurvan/* $(DESTDIR)/usr/share/calamares/branding/zurvan/
-	install -d $(DESTDIR)/usr/share/pixmaps
+	set -e; \
+	if [ -f /tmp/zurvan-config/versions/akaran/dist-version ]; then \
+		. /tmp/zurvan-config/versions/akaran/dist-version; \
+	elif [ -f "$(CURDIR)/../zurvan-config/versions/akaran/dist-version" ]; then \
+		. "$(CURDIR)/../zurvan-config/versions/akaran/dist-version"; \
+	fi; \
+	DEBIAN_CODENAME=$${DEBIAN_CODENAME:-trixie}; \
+	DISTRIB_ID=$${DISTRIB_ID:-Zurvan}; \
+	SHORTNAME=$${SHORTNAME:-Zurvan}; \
+	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
+	    -e "s|@NAME@|$${DISTRIB_ID}|g" \
+	    -e "s|@VERSION_ID@|$${DISTRIB_RELEASE}|g" \
+	    -e "s|@VERSION@|$${DISTRIB_RELEASE} ($${ZURVAN_CODENAME})|g" \
+	    -e "s|@ID@|zurvan|g" \
+	    -e "s|@VERSION_CODENAME@|$${ZURVAN_CODENAME}|g" \
+	    -e "s|@DEBIAN_CODENAME@|$${DEBIAN_CODENAME}|g" \
+	    -e "s|@DISTRIB_RELEASE@|$${DISTRIB_RELEASE}|g" \
+	    -e "s|@DISTRIB_CODENAME@|$${ZURVAN_CODENAME}|g" \
+	    -e "s|@DISTRIB_DESCRIPTION@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
+	    -e "s|@HOSTNAME@|zurvan|g" \
+	    -e "s|@SHORTNAME@|$${SHORTNAME}|g" \
+	    etc/os-release.in > $(DESTDIR)/etc/os-release; \
+	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
+	    -e "s|@DISTRIB_ID@|$${DISTRIB_ID}|g" \
+	    -e "s|@DISTRIB_RELEASE@|$${DISTRIB_RELEASE}|g" \
+	    -e "s|@DISTRIB_CODENAME@|$${ZURVAN_CODENAME}|g" \
+	    -e "s|@DISTRIB_DESCRIPTION@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
+	    -e "s|@HOSTNAME@|zurvan|g" \
+	    -e "s|@SHORTNAME@|$${SHORTNAME}|g" \
+	    etc/lsb-release.in > $(DESTDIR)/etc/lsb-release; \
+	sed -e "s|@DEBIAN_CODENAME@|$${DEBIAN_CODENAME}|g" \
+	    etc/debian_version.in > $(DESTDIR)/etc/debian_version; \
+	sed -e "s|@HOSTNAME@|zurvan|g" \
+	    etc/hostname.in > $(DESTDIR)/etc/hostname; \
+	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
+	    etc/issue.in > $(DESTDIR)/etc/issue; \
+	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
+	    etc/issue.net.in > $(DESTDIR)/etc/issue.net; \
+	install -d $(DESTDIR)/usr/share/plymouth/themes/zurvan; \
+	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
+	    usr/share/plymouth/themes/zurvan/zurvan.script.in \
+	    > $(DESTDIR)/usr/share/plymouth/themes/zurvan/zurvan.script; \
+	install -p -m 644 usr/share/plymouth/themes/zurvan/zurvan.plymouth $(DESTDIR)/usr/share/plymouth/themes/zurvan/; \
+	install -d $(DESTDIR)/usr/share/calamares/branding/zurvan; \
+	sed -e "s|@NAME@|$${DISTRIB_ID}|g" \
+	    -e "s|@DISTRIB_RELEASE@|$${DISTRIB_RELEASE}|g" \
+	    -e "s|@SHORTNAME@|$${SHORTNAME}|g" \
+	    -e "s|@DISTRIB_DESCRIPTION@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
+	    usr/share/calamares/branding/zurvan/branding.desc.in \
+	    > $(DESTDIR)/usr/share/calamares/branding/zurvan/branding.desc; \
+	install -d $(DESTDIR)/usr/share/pixmaps; \
 	install -p -m 644 usr/share/pixmaps/* $(DESTDIR)/usr/share/pixmaps/
-	sed -e "s&#OSNAME#&GNU/Linux&g" etc/os-release > $(DESTDIR)/etc/os-release
-	mv $(DESTDIR)/etc/os-release $(DESTDIR)/usr/lib/os-release
-	ln -s ../usr/lib/os-release $(DESTDIR)/etc/os-release
 
 override_dh_link:
 	dh_link -X os-release
