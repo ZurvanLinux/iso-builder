@@ -1,0 +1,27 @@
+#!/usr/bin/make -f
+
+DESTDIR = debian/zurvan-base-files
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	install -p -m 644 etc/* $(DESTDIR)/etc
+	install -d $(DESTDIR)/usr/share/plymouth/themes/zurvan
+	install -p -m 644 usr/share/plymouth/themes/zurvan/* $(DESTDIR)/usr/share/plymouth/themes/zurvan/
+	install -d $(DESTDIR)/usr/share/calamares/branding/zurvan
+	install -p -m 644 usr/share/calamares/branding/zurvan/* $(DESTDIR)/usr/share/calamares/branding/zurvan/
+	install -d $(DESTDIR)/usr/share/pixmaps
+	install -p -m 644 usr/share/pixmaps/* $(DESTDIR)/usr/share/pixmaps/
+	sed -e "s&#OSNAME#&GNU/Linux&g" etc/os-release > $(DESTDIR)/etc/os-release
+	mv $(DESTDIR)/etc/os-release $(DESTDIR)/usr/lib/os-release
+	ln -s ../usr/lib/os-release $(DESTDIR)/etc/os-release
+
+override_dh_link:
+	dh_link -X os-release
+
+override_dh_compress:
+	dh_compress -X README
+
+override_dh_fixperms:
+	dh_fixperms

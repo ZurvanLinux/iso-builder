@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+configure)
+	if [ -d /usr/share/plymouth/themes/zurvan ]; then
+		if [ -f /usr/share/plymouth/themes/zurvan/zurvan.plymouth ]; then
+			update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/zurvan/zurvan.plymouth 50 || true
+			update-initramfs -u >/dev/null 2>&1 || true
+		fi
+	fi
+	;;
+esac
+
+exit 0

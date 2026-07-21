@@ -1,0 +1,11 @@
+PRETTY_NAME="Zurvan Linux 0.2"
+NAME="Zurvan"
+VERSION_ID="0.2"
+VERSION="0.2 (trixie)"
+ID=zurvan
+ID_LIKE=debian
+HOME_URL="https://zurvanlinux.org/"
+SUPPORT_URL="https://github.com/ZurvanLinux"
+BUG_REPORT_URL="https://github.com/ZurvanLinux/iso-builder/issues"
+VERSION_CODENAME=trixie
+DEBIAN_CODENAME=trixie

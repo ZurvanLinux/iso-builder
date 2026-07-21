@@ -1,0 +1,14 @@
+[Branding]
+name=Zurvan Linux
+version=0.2
+shortname=Zurvan
+description=Zurvan Linux 0.2
+shortdescription=Zurvan
+homepage=https://zurvanlinux.org/
+bugreport=https://github.com/ZurvanLinux/iso-builder/issues
+
+[Image]
+productlogo=
+productlogoname=
+wallpaper=
+wallpapername=

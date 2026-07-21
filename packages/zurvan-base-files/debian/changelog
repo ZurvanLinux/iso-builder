@@ -1,0 +1,7 @@
+zurvan-base-files (0.2-1) trixie; urgency=low
+
+  * Initial package providing Zurvan Linux system identity.
+  * Ship branded /etc/os-release, /etc/lsb-release, /etc/hostname,
+    Plymouth theme, Calamares branding, and logo.
+
+ -- Zurvan Linux Developers <dev@zurvanlinux.org>  Tue, 21 Jul 2026 20:00:00 +0200

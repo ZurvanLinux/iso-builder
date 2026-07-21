@@ -1,0 +1,43 @@
+#!/usr/bin/plymouth;
+
+Window.SetBackgroundTopColor (0.19, 0.19, 0.19);
+Window.SetBackgroundBottomColor (0.19, 0.19, 0.19);
+
+branding = TextDecoration.Create("");
+branding.SetColor(1.0, 1.0, 1.0, 1.0);
+branding.SetText("Zurvan Linux");
+branding.SetPosition(0.5, 0.5);
+branding.SetAlignment("center");
+
+progress = ProgressBar.Create();
+progress.SetWidth(300);
+progress.SetHeight(20);
+progress.SetPosition(0.5, 0.4);
+progress.SetAlignment("center");
+
+message = TextDecoration.Create("");
+message.SetColor(0.8, 0.8, 0.8, 1.0);
+message.SetText("");
+message.SetPosition(0.5, 0.35);
+message.SetAlignment("center");
+
+fun update_message (txt) {
+	message.SetText(txt);
+}
+
+fun set_mode (m) {
+	if (m == "boot") {
+		progress.SetText("Loading...");
+	} else if (m == "shutdown") {
+		progress.SetText("Shutting down...");
+	} else if (m == "updates") {
+		progress.SetText("Updating...");
+	} else if (m == "spinning") {
+		progress.SetText("Loading...");
+	} else {
+		progress.SetText("");
+	}
+}
+
+Plymouth.SetUpdateMessageFunction (update_message);
+Plymouth.SetModeFunction (set_mode);

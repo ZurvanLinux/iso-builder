@@ -6,3 +6,6 @@
 # commented out here. M2.2 will build + sign it; M2.3 wires it back in here.
 #
 # zurvan-dns-bypass
+
+# zurvan-base-files: project-built identity package, built in CI and staged locally
+zurvan-base-files
