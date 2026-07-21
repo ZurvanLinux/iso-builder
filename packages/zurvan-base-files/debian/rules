@@ -7,10 +7,14 @@ DESTDIR = debian/zurvan-base-files
 
 override_dh_auto_install:
 	set -e; \
-	if [ -f /tmp/zurvan-config/versions/akaran/dist-version ]; then \
-		. /tmp/zurvan-config/versions/akaran/dist-version; \
-	elif [ -f "$(CURDIR)/../zurvan-config/versions/akaran/dist-version" ]; then \
-		. "$(CURDIR)/../zurvan-config/versions/akaran/dist-version"; \
+	CODENAME_DIR=""; \
+	if [ -d /tmp/zurvan-config/versions ]; then \
+		CODENAME_DIR="$$(find /tmp/zurvan-config/versions -maxdepth 2 -name dist-version -exec dirname {} \; | head -n1)"; \
+	elif [ -d "$(CURDIR)/../zurvan-config/versions" ]; then \
+		CODENAME_DIR="$$(find "$(CURDIR)/../zurvan-config/versions" -maxdepth 2 -name dist-version -exec dirname {} \; | head -n1)"; \
+	fi; \
+	if [ -n "$${CODENAME_DIR}" ] && [ -f "$${CODENAME_DIR}/dist-version" ]; then \
+		. "$${CODENAME_DIR}/dist-version"; \
 	fi; \
 	DEBIAN_CODENAME=$${DEBIAN_CODENAME:-trixie}; \
 	DISTRIB_ID=$${DISTRIB_ID:-Zurvan}; \
