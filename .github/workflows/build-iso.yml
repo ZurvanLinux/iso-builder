@@ -125,6 +125,14 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Upload zurvan-base-files deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zurvan-base-files-deb
+          path: packages/zurvan-base-files_*.deb
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Resolve release tag
         id: rel
         run: |
@@ -223,3 +231,54 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             "$api/releases/$RELEASE_ID" -d "$(jq -n --arg b "$body" '{body:$b}')" >/dev/null
           echo "Release body updated with $URL"
+
+  test-installed-upgrade:
+    name: Test installed-system upgrade path
+    runs-on: ubuntu-latest
+    container:
+      image: debian:trixie@sha256:d63a99144861e4e460196ed93d07777490cbeab53ca660c434f2a589a6c50ea3
+      options: --privileged
+    needs: build
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - name: Checkout live-build config
+        uses: actions/checkout@v4
+
+      - name: Checkout zurvan-config
+        uses: actions/checkout@v4
+        with:
+          repository: ZurvanLinux/zurvan-config
+          path: /tmp/zurvan-config
+          ref: main
+
+      - name: Download zurvan-base-files deb artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: zurvan-base-files-deb
+          path: /tmp/artifact
+
+      - name: Install test dependencies
+        run: |
+          set -eux
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            debootstrap
+
+      - name: Run upgrade-path test suite
+        run: |
+          set -eux
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p packages
+          cp "/tmp/artifact/"zurvan-base-files_*.deb packages/ 2>/dev/null || true
+          export CHROOT="/tmp/zurvan-upgrade-chroot"
+          tests/upgrade/run.sh || { tests/upgrade/cleanup.sh; exit 1; }
+          tests/upgrade/cleanup.sh
+
+      - name: Upload chroot logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upgrade-test-logs
+          path: /tmp/zurvan-upgrade-chroot/**
+          retention-days: 7
