@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ZurvanLinux/zurvan-config
-          path: /tmp/zurvan-config
+          path: zurvan-config
           ref: ${{ env.ZURVAN_CONFIG_REF }}
 
       - name: Provision loop devices
@@ -277,7 +277,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ZurvanLinux/zurvan-config
-          path: /tmp/zurvan-config
+          path: zurvan-config
           ref: ${{ env.ZURVAN_CONFIG_REF }}
 
       - name: Download zurvan-base-files deb artifact
