@@ -1,5 +1,4 @@
-# Zurvan Linux — §9 Custom Zurvan Utilities
-# (package-manifest.md §9)
+# §14 Custom Zurvan Utilities (package-manifest.md §14)
 #
 # zurvan-dns-bypass is a custom package built in Phase 2 and published to the
 # Zurvan APT repo (repo.zurvanlinux.org). It is NOT available yet, so it is
@@ -7,5 +6,5 @@
 #
 # zurvan-dns-bypass
 
-# zurvan-base-files: project-built identity package, built in CI and staged locally
+# zurvan-base-files: project-built identity package, built in CI and staged locally via packages.chroot.
 zurvan-base-files

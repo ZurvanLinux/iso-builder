@@ -1,0 +1,40 @@
+# §8 Hardware Support & System Services (package-manifest.md §8)
+# See technical-spec-architecture.md §2.2 for firmware stack rationale.
+#
+# contrib / non-free / non-free-firmware are enabled in auto/config.
+# firmware-linux / -nonfree are the metapackages; the specific Wi-Fi/NIC
+# firmware packages are listed explicitly per the spec. nvidia-detect assists
+# users in installing proprietary NVIDIA drivers (no driver is pre-installed).
+firmware-linux
+firmware-linux-nonfree
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros
+firmware-b43
+firmware-brcm80211
+upower
+bluez
+fprintd
+fwupd
+geoclue
+iio-sensor-proxy
+power-profiles-daemon
+switcheroo-control
+system-config-printer-applet
+system-config-printer-dbus-service
+thermald
+xserver-xorg-input-libinput
+pipewire
+wireplumber
+alsa-utils
+linux-firmware
+intel-microcode
+amd-microcode
+libwacom
+xserver-xorg-input-wacom
+acpi
+lm-sensors
+usbutils
+pciutils
+mesa-vulkan-drivers
+nvidia-detect

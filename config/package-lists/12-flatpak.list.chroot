@@ -1,0 +1,8 @@
+# §12 Flatpak & Software Store Integration (package-manifest.md §12)
+flatpak
+plasma-discover
+plasma-discover-backend-flatpak
+
+# Pre-baked Flathub apps installed via chroot hook (98-install-flathub-apps.hook.chroot):
+#   com.visualstudio.code, com.obsproject.Studio,
+#   org.gahshomar.Gahshomar, com.leinardi.gst

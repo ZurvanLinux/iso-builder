@@ -1,0 +1,6 @@
+# §9 File System Support (package-manifest.md §9)
+ntfs-3g
+exfatprogs
+dosfstools
+btrfs-progs
+xfsprogs

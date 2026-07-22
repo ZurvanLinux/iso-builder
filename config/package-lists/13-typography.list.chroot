@@ -1,0 +1,15 @@
+# §13 Typography (package-manifest.md §13)
+#
+# fonts-vazirmatn provides the Vazirmatn family. /etc/fonts/local.conf in
+# includes.chroot/ sets it as the system default.
+#
+# DIVERGENCE FLAGGED vs. the spec:
+# The spec also asks for "Vazirmatn UI FD" (the Farsi-Digits MONOSPACE variant)
+# for terminals/editors. Debian's `fonts-vazirmatn` ships ONLY the proportional
+# Vazirmatn family, so forcing it into `monospace` would break terminal grid
+# alignment. Monospace is therefore left at the system default here; the UI FD
+# variant will be bundled from Google Fonts in Phase 2 (branding-assets, M2.1).
+fonts-vazirmatn
+fontconfig
+noto-color-emoji
+fonts-unifont

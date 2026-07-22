@@ -1,5 +1,4 @@
-# Zurvan Linux — §5 Universal Multimedia Codecs & HW Acceleration
-# (package-manifest.md §5)
+# §10 Universal Multimedia Codecs & HW Acceleration (package-manifest.md §10)
 ffmpeg
 libavcodec-extra
 gstreamer1.0-libav

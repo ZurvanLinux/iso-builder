@@ -1,0 +1,16 @@
+# §6 Essential Desktop Applications (package-manifest.md §6)
+# Debian Stable substitution: kde-spectacle replaces upstream spectacle
+dolphin
+konsole
+systemsettings
+kde-spectacle
+ark
+kwrite
+kcalc
+firefox
+thunderbird
+libreoffice
+khelpcenter
+kdeconnect-kde
+gparted
+okular

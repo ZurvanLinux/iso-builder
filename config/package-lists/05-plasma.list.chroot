@@ -1,0 +1,15 @@
+# §5 KDE Plasma Desktop Environment (package-manifest.md §5)
+# Debian Stable (trixie) / Plasma 6 substitutions:
+# `plasma-workspace-wayland` does NOT exist in current Debian Stable: the Wayland session
+#   is part of `plasma-workspace` itself in Plasma 6. Verified via madison.
+# `khotkeys` was REMOVED in Plasma 6 (custom shortcuts moved into KDE's
+#   built-in global-accel system). Omitted to avoid a missing-package build failure.
+plasma-desktop
+plasma-workspace
+plasma-nm
+plasma-pa
+kscreen
+powerdevil
+kde-style-breeze
+bluedevil
+kde-inotify-survey
