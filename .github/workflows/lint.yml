@@ -10,5 +10,40 @@ permissions:
 
 jobs:
   lint:
-    name: shellcheck + yamllint (reusable)
-    uses: ZurvanLinux/.github/.github/workflows/lint.yml@main
+    name: shellcheck + yamllint + bash -n
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install linters
+        run: |
+          set -eux
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            shellcheck yamllint
+      - name: shellcheck
+        run: |
+          set -eux
+          shopt -s globstar nullglob
+          files=(**/*.sh **/*.hook.chroot)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No shell files found"
+          else
+            shellcheck "${files[@]}"
+          fi
+      - name: bash -n
+        run: |
+          set -eux
+          shopt -s globstar nullglob
+          for f in **/*.sh **/*.hook.chroot; do
+            bash -n "$f"
+          done
+      - name: yamllint
+        run: |
+          set -eux
+          shopt -s globstar nullglob
+          yfiles=(**/*.yml **/*.yaml)
+          if [ ${#yfiles[@]} -eq 0 ]; then
+            echo "No YAML files found"
+          else
+            yamllint "${yfiles[@]}"
+          fi
