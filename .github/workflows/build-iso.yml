@@ -107,7 +107,8 @@ jobs:
 
       - name: Build ISO (lb build)
         run: |
-          set -eux
+          set -euo pipefail
+          set -x
           cd "$GITHUB_WORKSPACE"
           attempt=1
           max=3
