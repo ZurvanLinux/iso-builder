@@ -1,0 +1,2 @@
+DPkg::Options:: "--force-confdef";
+DPkg::Options:: "--force-confold";

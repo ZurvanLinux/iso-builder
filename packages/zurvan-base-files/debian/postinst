@@ -9,13 +9,6 @@ configure)
 			update-initramfs -u >/dev/null 2>&1 || true
 		fi
 	fi
-
-	for f in os-release lsb-release hostname issue issue.net debian_version; do
-		dpkg-divert --divert "/etc/$f.distrib" --rename "/etc/$f" 2>/dev/null || true
-		if [ -f "/etc/$f.distrib" ]; then
-			cp -f "/etc/$f.distrib" "/etc/$f" || true
-		fi
-	done
 	;;
 esac
 
