@@ -101,9 +101,13 @@ jobs:
         run: |
           set -eux
           cd "$GITHUB_WORKSPACE"
-          # The lb wrapper detects auto/config and runs it; auto/config calls
-          # `lb config noauto ...` so there is no recursion.
           lb config
+
+      - name: Clean live-build caches
+        run: |
+          set -eux
+          cd "$GITHUB_WORKSPACE"
+          lb clean || true
 
       - name: Build ISO (lb build)
         run: |
