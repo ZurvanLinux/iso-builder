@@ -20,16 +20,15 @@ lb config noauto \
     --debian-installer none \
     --mirror-bootstrap        "https://deb.debian.org/debian" \
     --mirror-binary           "https://deb.debian.org/debian" \
+    --mirror-chroot-security  "https://deb.debian.org/debian-security" \
+    --mirror-binary-security  "https://deb.debian.org/debian-security" \
     --parent-mirror-bootstrap "https://deb.debian.org/debian" \
     --parent-mirror-binary    "https://deb.debian.org/debian" \
-    --mirror-bootstrap-security "https://deb.debian.org/debian-security" \
-    --mirror-binary-security "https://deb.debian.org/debian-security" \
-    --parent-mirror-bootstrap-security "https://deb.debian.org/debian-security" \
+    --parent-mirror-chroot-security "https://deb.debian.org/debian-security" \
     --parent-mirror-binary-security "https://deb.debian.org/debian-security" \
     --iso-application "Zurvan Linux" \
     --iso-publisher   "Zurvan Linux - https://zurvanlinux.org" \
     --iso-preparer    "Zurvan Linux live-build pipeline (iso-builder)" \
     --iso-volume      "ZURVAN_LIVE" \
-    --grub-distributor "Zurvan" \
     "${@}"
 
