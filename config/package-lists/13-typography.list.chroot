@@ -11,5 +11,5 @@
 # variant will be bundled from Google Fonts in Phase 2 (branding-assets, M2.1).
 fonts-vazirmatn
 fontconfig
-noto-color-emoji
+fonts-noto-color-emoji
 fonts-unifont

@@ -1,8 +1,8 @@
 # §7 KDE Integration & Productivity Add-ons (package-manifest.md §7)
 ffmpegthumbs
-kimageformats
+kimageformat6-plugins
 kio-extras
 xdg-desktop-portal-gtk
 xsettingsd
-qt-imageformats
+qt5-image-formats-plugins
 unrar
