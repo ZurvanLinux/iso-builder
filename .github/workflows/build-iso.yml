@@ -84,6 +84,7 @@ jobs:
             mtools dosfstools \
             ca-certificates curl jq \
             rclone \
+            build-essential \
             dpkg-dev debhelper fakeroot
           dpkg-query -W live-build debootstrap squashfs-tools xorriso isolinux grub-pc-bin grub-efi-amd64-bin rclone dpkg-dev debhelper fakeroot
 
