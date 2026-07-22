@@ -18,9 +18,9 @@ override_dh_auto_install:
 	DISTRIB_RELEASE=$${DISTRIB_RELEASE:-0.1.0}; \
 	DISTRIB_ID=$${DISTRIB_ID:-Zurvan}; \
 	SHORTNAME=$${SHORTNAME:-Zurvan}; \
- 	ZURVAN_CODENAME=$${ZURVAN_CODENAME:-trixie}; \
-+	install -d $(DESTDIR)/etc; \
- 	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
+	ZURVAN_CODENAME=$${ZURVAN_CODENAME:-trixie}; \
+	install -d $(DESTDIR)/etc; \
+	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
 	    -e "s|@NAME@|$${DISTRIB_ID}|g" \
 	    -e "s|@VERSION_ID@|$${DISTRIB_RELEASE}|g" \
 	    -e "s|@VERSION@|$${DISTRIB_RELEASE} ($${ZURVAN_CODENAME})|g" \
