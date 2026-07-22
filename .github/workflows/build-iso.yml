@@ -34,10 +34,10 @@ jobs:
 
     steps:
       - name: Checkout live-build config
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Checkout zurvan-config
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ZurvanLinux/zurvan-config
           path: zurvan-config
@@ -59,7 +59,7 @@ jobs:
           df -h / /mnt 2>/dev/null || df -h /
 
       - name: Cache apt archives
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /var/cache/apt/archives
           # Include auto/config so mirror/archive-area changes invalidate the cache.
@@ -109,10 +109,19 @@ jobs:
         run: |
           set -eux
           cd "$GITHUB_WORKSPACE"
-          # Invoke lb (the wrapper), NOT ./auto/build. Calling the auto script
-          # directly bypasses live-build's recursion sentinel and loops until
-          # "Argument list too long".
-          lb build
+          attempt=1
+          max=3
+          while [ "$attempt" -le "$max" ]; do
+            lb build 2>&1 | tee "lb-build-${attempt}.log" && break
+            if [ "$attempt" -eq "$max" ]; then
+              echo "::error::lb build failed after ${max} attempts"
+              exit 1
+            fi
+            sleep_secs=$((attempt * 30))
+            echo "lb build attempt ${attempt}/${max} failed; retrying in ${sleep_secs}s..."
+            sleep "$sleep_secs"
+            attempt=$((attempt + 1))
+          done
 
       - name: Collect ISO and SHA256
         id: collect
@@ -144,6 +153,14 @@ jobs:
           path: packages/zurvan-base-files_*.deb
           if-no-files-found: error
           retention-days: 14
+
+      - name: Upload lb build logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lb-build-logs
+          path: "lb-build-*.log"
+          retention-days: 7
 
       - name: Resolve release tag
         id: rel
@@ -272,10 +289,10 @@ jobs:
       ZURVAN_CONFIG_REF: c42d342e58c06cb182882d516f3380af61ecee88
     steps:
       - name: Checkout live-build config
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Checkout zurvan-config
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ZurvanLinux/zurvan-config
           path: zurvan-config

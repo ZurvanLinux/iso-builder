@@ -4,7 +4,10 @@ set -e
 case "$1" in
 install|upgrade)
 	for f in /etc/os-release /etc/lsb-release /etc/hostname /etc/issue /etc/issue.net /etc/debian_version; do
-		dpkg-divert --package zurvan-base-files --divert "$f.distrib" --rename --add "$f" 2>/dev/null || true
+		if [ -e "$f" ]; then
+			echo "diverting $f -> $f.distrib"
+			dpkg-divert --package zurvan-base-files --divert "$f.distrib" --rename --add "$f" || true
+		fi
 	done
 	;;
 abort-upgrade)
