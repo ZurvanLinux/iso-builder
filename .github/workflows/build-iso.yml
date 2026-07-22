@@ -24,6 +24,8 @@ jobs:
     name: Build ISO (live-build)
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    env:
+      ZURVAN_CONFIG_REF: c42d342e58c06cb182882d516f3380af61ecee88
     container:
       # Pinned by digest for reproducibility (plan: pin debian:trixie).
       # amd64 manifest digest of library/debian:trixie at time of commit.
@@ -39,7 +41,7 @@ jobs:
         with:
           repository: ZurvanLinux/zurvan-config
           path: /tmp/zurvan-config
-          ref: main
+          ref: ${{ env.ZURVAN_CONFIG_REF }}
 
       - name: Provision loop devices
         run: |
@@ -55,6 +57,15 @@ jobs:
           losetup -f
           # Report free space so disk pressure is visible in logs.
           df -h / /mnt 2>/dev/null || df -h /
+
+      - name: Cache apt archives
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          # Include auto/config so mirror/archive-area changes invalidate the cache.
+          key: iso-builder-apt-${{ runner.os }}-${{ hashFiles('config/package-lists/*.list.chroot', 'auto/config') }}
+          restore-keys: |
+            iso-builder-apt-${{ runner.os }}-
 
       - name: Install live-build and ISO toolchain
         run: |
@@ -141,45 +152,8 @@ jobs:
             tag="${GITHUB_REF#refs/tags/}"
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "ver=${tag#v}" >> "$GITHUB_OUTPUT"
           echo "Resolved release tag: ${tag:-<none>}"
-
-      - name: Create GitHub Release (notes + SHA256SUMS)
-        if: ${{ steps.rel.outputs.tag != '' }}
-        id: ghrel
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -eux
-          cd "$GITHUB_WORKSPACE/out"
-          tag="${{ steps.rel.outputs.tag }}"
-          ver="${tag#v}"
-          api="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY"
-          sha="$(cut -d' ' -f1 SHA256SUMS)"
-          # The ISO is NOT attached here: a full KDE ISO exceeds GitHub's 2 GB
-          # per-asset cap. It is published to Cloudflare R2 in the next step;
-          # this release holds the notes + the small SHA256SUMS file.
-          rel_id=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
-              "$api/releases/tags/$tag" | jq -r '.id // empty' || true)
-          if [ -z "$rel_id" ]; then
-            rel_id=$(curl -fsSL -X POST \
-                -H "Authorization: Bearer $GH_TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                "$api/releases" -d "$(jq -n --arg t "$tag" --arg n "Zurvan Linux $tag" \
-                  '{tag_name:$t, name:$n, body:"ISO publishing to Cloudflare R2 in progress; see the workflow run.", prerelease:true, target_commitish:"main"}')" \
-              | jq -r '.id')
-          fi
-          # Attach only SHA256SUMS (the ISO lives on R2).
-          upload_url=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
-              "$api/releases/$rel_id" | jq -r '.upload_url')
-          upload_base="${upload_url%\{?name,label\}}"
-          curl -fsSL -X POST \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            -H "Content-Type: text/plain" \
-            --data-binary "@SHA256SUMS" "${upload_base}?name=SHA256SUMS" || true
-          echo "release_id=$rel_id" >> "$GITHUB_OUTPUT"
-          echo "sha=$sha" >> "$GITHUB_OUTPUT"
-          echo "ver=$ver" >> "$GITHUB_OUTPUT"
 
       - name: Upload ISO to Cloudflare R2
         if: ${{ steps.rel.outputs.tag != '' }}
@@ -189,7 +163,7 @@ jobs:
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
-          VER: ${{ steps.ghrel.outputs.ver }}
+          VER: ${{ steps.rel.outputs.ver }}
         run: |
           set -eux
           cd "$GITHUB_WORKSPACE/out"
@@ -208,38 +182,93 @@ jobs:
           export RCLONE_CONFIG_R2_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID"
           export RCLONE_CONFIG_R2_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY"
           export RCLONE_CONFIG_R2_NO_CHECK_BUCKET=true
-          rclone copyto "$ISO" "r2:${R2_BUCKET}/iso/${ISO}"
-          rclone copyto "${ISO}.sha256" "r2:${R2_BUCKET}/iso/${ISO}.sha256"
+          # Outer retry for multi-GB ISO uploads; rclone also has its own
+          # --retries / --low-level-retries for transient API failures.
+          upload_with_retry() {
+            src="$1"
+            dest="$2"
+            attempt=1
+            max=3
+            while [ "$attempt" -le "$max" ]; do
+              if rclone copyto "$src" "$dest" \
+                  --retries 5 \
+                  --retries-sleep 10s \
+                  --low-level-retries 20; then
+                return 0
+              fi
+              if [ "$attempt" -eq "$max" ]; then
+                echo "::error::rclone copyto failed after ${max} attempts: $src -> $dest"
+                return 1
+              fi
+              sleep_secs=$((attempt * 15))
+              echo "Upload attempt ${attempt}/${max} failed; retrying in ${sleep_secs}s..."
+              sleep "$sleep_secs"
+              attempt=$((attempt + 1))
+            done
+          }
+          upload_with_retry "$ISO" "r2:${R2_BUCKET}/iso/${ISO}"
+          upload_with_retry "${ISO}.sha256" "r2:${R2_BUCKET}/iso/${ISO}.sha256"
           url="https://download.zurvanlinux.org/iso/${ISO}"
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "Published ISO: $url"
 
-      - name: Link R2 download in the release body
+      - name: Create GitHub Release (notes + SHA256SUMS)
         if: ${{ steps.rel.outputs.tag != '' }}
+        id: ghrel
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_ID: ${{ steps.ghrel.outputs.release_id }}
-          URL: ${{ steps.r2.outputs.url }}
-          SHA: ${{ steps.ghrel.outputs.sha }}
-          TAG: ${{ steps.rel.outputs.tag }}
         run: |
           set -eux
+          cd "$GITHUB_WORKSPACE/out"
+          tag="${{ steps.rel.outputs.tag }}"
+          ver="${{ steps.rel.outputs.ver }}"
           api="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY"
-          body="$(printf 'Zurvan Linux %s pre-release.\n\n**Download ISO:** %s\n**SHA256:** %s\n\nThe ISO is hosted on Cloudflare R2 (zero-egress). This GitHub Release holds the release notes and the attached SHA256SUMS file.' "$TAG" "$URL" "$SHA")"
-          curl -fsSL -X PATCH \
+          sha="$(cut -d' ' -f1 SHA256SUMS)"
+          url="${{ steps.r2.outputs.url }}"
+          # Release is created ONLY after R2 upload succeeds. The ISO itself
+          # is not a GitHub asset (exceeds 2 GB cap); this release holds
+          # release notes + the small SHA256SUMS file.
+          rel_id=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+              "$api/releases/tags/$tag" | jq -r '.id // empty' || true)
+          if [ -z "$rel_id" ]; then
+            rel_id=$(curl -fsSL -X POST \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "$api/releases" -d "$(jq -n --arg t "$tag" --arg n "Zurvan Linux $tag" \
+                  --arg b "Zurvan Linux $tag pre-release.\n\n**Download ISO:** $url\n**SHA256:** $sha\n\nThe ISO is hosted on Cloudflare R2 (zero-egress). This GitHub Release holds the release notes and the attached SHA256SUMS file." \
+                  '{tag_name:$t, name:$n, body:$b, prerelease:true, target_commitish:"main"}')" \
+              | jq -r '.id')
+          else
+            # Update existing release body in case of a re-run (e.g. after R2 succeeded).
+            curl -fsSL -X PATCH \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "$api/releases/$rel_id" -d "$(jq -n --arg b "Zurvan Linux $tag pre-release.\n\n**Download ISO:** $url\n**SHA256:** $sha\n\nThe ISO is hosted on Cloudflare R2 (zero-egress). This GitHub Release holds the release notes and the attached SHA256SUMS file." '{body:$b}')" >/dev/null || true
+          fi
+          # Attach only SHA256SUMS (the ISO lives on R2).
+          upload_url=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+              "$api/releases/$rel_id" | jq -r '.upload_url')
+          upload_base="${upload_url%\{?name,label\}}"
+          curl -fsSL -X POST \
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
-            "$api/releases/$RELEASE_ID" -d "$(jq -n --arg b "$body" '{body:$b}')" >/dev/null
-          echo "Release body updated with $URL"
+            -H "Content-Type: text/plain" \
+            --data-binary "@SHA256SUMS" "${upload_base}?name=SHA256SUMS" || true
+          echo "release_id=$rel_id" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "ver=$ver" >> "$GITHUB_OUTPUT"
 
   test-installed-upgrade:
     name: Test installed-system upgrade path
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     container:
       image: debian:trixie@sha256:d63a99144861e4e460196ed93d07777490cbeab53ca660c434f2a589a6c50ea3
       options: --privileged
     needs: build
     if: ${{ github.event_name == 'pull_request' }}
+    env:
+      ZURVAN_CONFIG_REF: c42d342e58c06cb182882d516f3380af61ecee88
     steps:
       - name: Checkout live-build config
         uses: actions/checkout@v4
@@ -249,7 +278,7 @@ jobs:
         with:
           repository: ZurvanLinux/zurvan-config
           path: /tmp/zurvan-config
-          ref: main
+          ref: ${{ env.ZURVAN_CONFIG_REF }}
 
       - name: Download zurvan-base-files deb artifact
         uses: actions/download-artifact@v4

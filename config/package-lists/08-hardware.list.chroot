@@ -27,7 +27,6 @@ xserver-xorg-input-libinput
 pipewire
 wireplumber
 alsa-utils
-linux-firmware
 intel-microcode
 amd-microcode
 libwacom

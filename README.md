@@ -52,7 +52,7 @@ config/
     zurvan-locale.hook.chroot           # locale-gen + timezone symlink + /etc/default/locale
 .github/workflows/
   build-iso.yml                   # privileged debian:trixie container build + release
-  lint.yml                        # calls the org reusable shellcheck/yamllint workflow
+  lint.yml                        # inline shellcheck + yamllint + bash -n
 ```
 
 `.gitignore` excludes live-build generated control files and build stages
@@ -126,16 +126,11 @@ rolling `stable` suite — for reproducibility and a stable security-suite path
 (`trixie-security`). When Debian releases a new stable (e.g. trixie → forky):
 
 1. Update `--distribution` in `auto/config` to the new codename.
-2. Re-resolve and repin the build container in BOTH workflows:
-   - `.github/workflows/build-iso.yml` (iso-builder)
-   - `apt-repository/.github/workflows/publish-repo.yml`
-   Resolve the amd64 manifest digest (`docker pull debian:<codename>` or the
-   registry API) and pin `debian:<codename>@sha256:…`.
-3. Re-verify every package name in `config/package-lists/` against the new suite
-   via Debian madison — package names drift across Debian + Plasma majors (see
-    the substitution notes in `05-plasma.list.chroot`).
-4. Update the "(pinned to the `<codename>` codename)" note in this README.
-5. Trigger `build-iso.yml`, boot-test in QEMU/KVM + VirtualBox (BIOS + UEFI),
+2. Repin the build container in `.github/workflows/build-iso.yml` by resolving the new amd64 manifest digest (`docker pull debian:<codename>` or the registry API) and updating `debian:<codename>@sha256:…`.
+3. Bump the `ZURVAN_CONFIG_REF` env in `.github/workflows/build-iso.yml` (both `build` and `test-installed-upgrade`) to the new `ZurvanLinux/zurvan-config` `main` HEAD SHA.
+4. Re-verify every package name in `config/package-lists/` against the new suite via Debian madison — package names drift across Debian + Plasma majors (see the substitution notes in `05-plasma.list.chroot`).
+5. Update the "(pinned to the `<codename>` codename)" note in this README.
+6. Trigger `build-iso.yml`, boot-test in QEMU/KVM + VirtualBox (BIOS + UEFI),
    and run the full `testing-qa-checklist.md` before tagging a pre-release.
 
 ## Out of scope here
