@@ -38,7 +38,7 @@ are documented inline in each list and summarized here:
 auto/
   config                          # -> lb config (amd64, all archive areas, ISO metadata)
 config/
-  package-lists/                  # one file per package-manifest.md section (§1-§10 + firmware)
+  package-lists/                  # one file per package-manifest.md section (§1–§15)
   includes.chroot/                # files overlaid into the chroot at / 
     etc/apt/sources.list.d/zurvan.list   # Zurvan apt repo (commented until P0)
     etc/fonts/local.conf                 # Vazirmatn default
@@ -133,7 +133,7 @@ rolling `stable` suite — for reproducibility and a stable security-suite path
    registry API) and pin `debian:<codename>@sha256:…`.
 3. Re-verify every package name in `config/package-lists/` against the new suite
    via Debian madison — package names drift across Debian + Plasma majors (see
-   the substitution notes in `03-plasma.list.chroot`).
+    the substitution notes in `05-plasma.list.chroot`).
 4. Update the "(pinned to the `<codename>` codename)" note in this README.
 5. Trigger `build-iso.yml`, boot-test in QEMU/KVM + VirtualBox (BIOS + UEFI),
    and run the full `testing-qa-checklist.md` before tagging a pre-release.

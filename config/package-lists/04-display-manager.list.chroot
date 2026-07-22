@@ -1,0 +1,6 @@
+# Zurvan Linux — §4 Display Manager & Login Interface
+# (package-manifest.md §4)
+sddm
+sddm-theme-breeze
+plymouth
+plymouth-themes

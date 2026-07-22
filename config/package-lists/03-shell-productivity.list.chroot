@@ -1,0 +1,8 @@
+# §3 Shell & Terminal Productivity (package-manifest.md §3)
+bash-completion
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+fzf
+
+# zoxide / starship / unicode excluded from trixie main; enable via backports or Phase 2 post-install script
