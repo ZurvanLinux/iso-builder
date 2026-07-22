@@ -3,12 +3,12 @@ set -e
 
 case "$1" in
 install|upgrade)
-	for f in /etc/os-release /etc/lsb-release /etc/hostname /etc/issue /etc/issue.net; do
+	for f in /etc/os-release /etc/lsb-release /etc/hostname /etc/issue /etc/issue.net /etc/debian_version; do
 		dpkg-divert --divert "$f.distrib" --rename "$f" 2>/dev/null || true
 	done
 	;;
 abort-upgrade)
-	for f in /etc/os-release /etc/lsb-release /etc/hostname /etc/issue /etc/issue.net; do
+	for f in /etc/os-release /etc/lsb-release /etc/hostname /etc/issue /etc/issue.net /etc/debian_version; do
 		dpkg-divert --remove --rename "$f" >/dev/null 2>&1 || true
 	done
 	;;

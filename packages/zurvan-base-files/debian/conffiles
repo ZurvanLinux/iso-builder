@@ -3,3 +3,4 @@
 /etc/issue.net
 /etc/lsb-release
 /etc/os-release
+/etc/debian_version
