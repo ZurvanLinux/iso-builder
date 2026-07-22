@@ -8,5 +8,6 @@ Standards-Version: 4.7.4
 Package: zurvan-base-files
 Architecture: all
 Depends: ${misc:Depends}, base-files (>= 2.1.12)
+Replaces: base-files
 Description: Zurvan Linux base system identity
  Overrides Debian identity files to provide Zurvan Linux branding.
