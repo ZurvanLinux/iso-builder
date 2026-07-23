@@ -13,10 +13,11 @@ sudo qemu-system-aarch64 \
   -drive if=pflash,format=raw,readonly=on,file=/opt/homebrew/share/qemu/edk2-aarch64-code.fd \
   -drive if=pflash,format=raw,file="$VARS_FILE" \
   -device virtio-gpu-pci,xres=1920,yres=1080 \
-  -device usb-ehci,id=usb \
-  -device usb-kbd \
-  -device usb-tablet \
-  -audio coreaudio,model=es1370 \
+  -device qemu-xhci,id=xhci \
+  -device usb-kbd,bus=xhci.0 \
+  -device usb-tablet,bus=xhci.0 \
+  -audiodev coreaudio,id=audio0 \
+  -device usb-audio,bus=xhci.0,audiodev=audio0 \
   -netdev vmnet-shared,id=net0 \
   -device virtio-net-pci,netdev=net0 \
   -drive file=/Users/mohammad/Downloads/zurvan-live-iso-arm64/live-image-arm64.hybrid.iso,if=virtio,format=raw,readonly=on \
