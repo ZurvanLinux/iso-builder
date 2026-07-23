@@ -5,6 +5,11 @@ systemctl enable ssh.service
 
 if [ -f /etc/ssh/sshd_config ]; then
     sed -i -E '/^AcceptEnv/ s/(LANG|LC_\*)([[:space:]]+|$)//g; s/[[:space:]]+/ /g; s/^[[:space:]]+//' /etc/ssh/sshd_config || true
+    if ! grep -qE '^[[:space:]]*PasswordAuthentication' /etc/ssh/sshd_config; then
+        echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+    else
+        sed -i -E 's/^[[:space:]]*PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config || true
+    fi
 fi
 
 exit 0
