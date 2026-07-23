@@ -9,7 +9,17 @@
 # Vazirmatn family, so forcing it into `monospace` would break terminal grid
 # alignment. Monospace is therefore left at the system default here; the UI FD
 # variant will be bundled from Google Fonts in Phase 2 (branding-assets, M2.1).
+#
+# Open-source Persian/Arabic-script fonts from Debian trixie:
+# - fonts-freefarsi: FreeFarsi TrueType Persian font (FPF project)
+# - fonts-farsiweb: Titr, Nazli, Nazli Bold, Homa
+# - fonts-hosny-amiri: Amiri Naskh-style Arabic/Persian typeface
+# - fonts-noto: Noto metapackage with broad Arabic-script coverage
 fonts-vazirmatn
 fontconfig
 fonts-noto-color-emoji
 fonts-unifont
+fonts-freefarsi
+fonts-farsiweb
+fonts-hosny-amiri
+fonts-noto
