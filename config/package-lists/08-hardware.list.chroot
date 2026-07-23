@@ -18,13 +18,15 @@ geoclue-2.0
 iio-sensor-proxy
 power-profiles-daemon
 switcheroo-control
+#if ARCHITECTURES amd64
 thermald
+intel-microcode
+#endif
 system-config-printer
 xserver-xorg-input-libinput
 pipewire
 wireplumber
 alsa-utils
-intel-microcode
 libwacom9
 xserver-xorg-input-wacom
 acpi
