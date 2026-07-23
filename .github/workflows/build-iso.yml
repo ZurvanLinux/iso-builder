@@ -107,7 +107,8 @@ jobs:
         run: |
           set -eux
           cd "$GITHUB_WORKSPACE"
-          lb clean || true
+          lb clean --purge || true
+          rm -rf chroot/ binary/ .build/ cache/
 
       - name: Build ISO (lb build)
         run: |

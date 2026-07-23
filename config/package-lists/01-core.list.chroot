@@ -1,5 +1,8 @@
 # Zurvan Linux — §1 Core System & Base Utilities
 # (package-manifest.md §1)
+# Explicit kernel package required for iso-hybrid boot; live-build does
+# not auto-install a kernel when --debian-installer none is used.
+linux-image-amd64
 xserver-xorg
 xwayland
 network-manager
