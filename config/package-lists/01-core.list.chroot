@@ -11,3 +11,4 @@ user-setup
 sudo
 eject
 locales
+openssh-server
