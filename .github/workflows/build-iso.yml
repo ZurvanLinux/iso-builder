@@ -145,7 +145,7 @@ jobs:
           ls -la
 
       - name: Upload ISO as workflow artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: zurvan-minimal-iso
           path: out/
@@ -153,7 +153,7 @@ jobs:
           retention-days: 14
 
       - name: Upload zurvan-base-files deb artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: zurvan-base-files-deb
           path: packages/zurvan-base-files_*.deb
@@ -162,7 +162,7 @@ jobs:
 
       - name: Upload lb build logs
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: lb-build-logs
           path: "lb-build-*.log"
@@ -305,7 +305,7 @@ jobs:
           ref: ${{ env.ZURVAN_CONFIG_REF }}
 
       - name: Download zurvan-base-files deb artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: zurvan-base-files-deb
           path: /tmp/artifact
@@ -330,7 +330,7 @@ jobs:
 
       - name: Upload chroot logs on failure
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: upgrade-test-logs
           path: /tmp/zurvan-upgrade-chroot/**
