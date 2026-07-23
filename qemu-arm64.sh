@@ -17,7 +17,7 @@ sudo qemu-system-aarch64 \
   -device usb-kbd \
   -device usb-tablet \
   -audiodev coreaudio,id=audio0 \
-  -device AC97,audiodev=audio0 \
+  -device ich9-intel-hda,id=sound0,audiodev=audio0 \
   -netdev vmnet-shared,id=net0 \
   -device virtio-net-pci,netdev=net0 \
   -drive file=/Users/mohammad/Downloads/zurvan-live-iso-arm64/live-image-arm64.hybrid.iso,if=virtio,format=raw,readonly=on \
