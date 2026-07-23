@@ -4,7 +4,12 @@ set -e
 systemctl enable ssh.service
 
 if [ -f /etc/ssh/sshd_config ]; then
-    sed -i '/^AcceptEnv LANG LC_\*/d' /etc/ssh/sshd_config || true
+    sed -i -E '/^AcceptEnv/ {
+        s/[[:space:]]+LANG([[:space:]]+|$)/ /g
+        s/[[:space:]]+LC_\*([[:space:]]+|$)/ /g
+        s/[[:space:]]+/ /g
+        s/^[[:space:]]+//
+    }' /etc/ssh/sshd_config || true
 fi
 
 exit 0
