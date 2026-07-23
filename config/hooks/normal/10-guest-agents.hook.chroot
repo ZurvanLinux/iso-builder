@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+
+systemctl enable qemu-guest-agent.service
+systemctl enable spice-vdagentd.service
+systemctl enable open-vm-tools.service

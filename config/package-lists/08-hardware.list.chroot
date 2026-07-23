@@ -35,3 +35,7 @@ usbutils
 pciutils
 mesa-vulkan-drivers
 nvidia-detect
+qemu-guest-agent
+open-vm-tools
+open-vm-tools-desktop
+spice-vdagent
