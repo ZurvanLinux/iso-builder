@@ -67,7 +67,7 @@ config/
 - **Timeout:** 90 minutes (a full Plasma squashfs is materially larger/slower than the
   M1.1a minimal build).
 - **Outputs:** `live-image-amd64.hybrid.iso` + `SHA256SUMS` are uploaded as a
-  workflow artifact (`zurvan-minimal-iso`) on every run. If a `release_tag` input
+  workflow artifact (`zurvan-live-iso`) on every run. If a `release_tag` input
   (or a pushed `v*.*.*-pre.*` tag) is supplied, the workflow **publishes** the ISO:
   - creates a GitHub **pre-release** with the release notes + `SHA256SUMS` (the
     ISO is *not* a GitHub asset — it exceeds GitHub's 2 GB per-asset cap), and

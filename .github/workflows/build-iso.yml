@@ -147,7 +147,7 @@ jobs:
       - name: Upload ISO as workflow artifact
         uses: actions/upload-artifact@v6
         with:
-          name: zurvan-minimal-iso
+          name: zurvan-live-iso
           path: out/
           if-no-files-found: error
           retention-days: 14
