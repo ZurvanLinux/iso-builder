@@ -99,14 +99,6 @@ jobs:
           dpkg-query -W live-build debootstrap squashfs-tools xorriso ${GRUB_PKGS} ${ISOLINUX_PKGS} rclone dpkg-dev debhelper fakeroot || true
           printf '%s\n' "$KERNEL_PKG" > "config/package-lists/kernel-${ARCH}.list.chroot"
 
-      - name: Build zurvan-base-files
-        run: |
-          set -eux
-          cd "$GITHUB_WORKSPACE/packages/zurvan-base-files"
-          dpkg-buildpackage -us -uc -b
-          cd "$GITHUB_WORKSPACE"
-          mkdir -p config/packages.chroot
-          cp -v packages/zurvan-base-files_*.deb config/packages.chroot/
 
       - name: Configure (lb config)
         run: |
@@ -120,6 +112,15 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           lb clean --purge || true
           rm -rf chroot/ binary/ .build/ cache/
+
+      - name: Build zurvan-base-files
+        run: |
+          set -eux
+          cd "$GITHUB_WORKSPACE/packages/zurvan-base-files"
+          dpkg-buildpackage -us -uc -b
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p config/packages.chroot
+          cp -v packages/zurvan-base-files_*.deb config/packages.chroot/
 
       - name: Build ISO (lb build)
         run: |
