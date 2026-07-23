@@ -2,7 +2,8 @@
 # (package-manifest.md §1)
 # Explicit kernel package required for iso-hybrid boot; live-build does
 # not auto-install a kernel when --debian-installer none is used.
-linux-image-amd64
+# The kernel package is supplied by the arch-conditional kernel list
+# written by CI: kernel-amd64.list.chroot or kernel-arm64.list.chroot.
 xserver-xorg
 xwayland
 network-manager
