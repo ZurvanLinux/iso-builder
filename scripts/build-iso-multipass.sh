@@ -11,6 +11,14 @@ if ! command -v multipass &> /dev/null; then
 fi
 
 echo "=== 2. Checking Multipass VM (${VM_NAME}) == "
+if multipass list --format json | jq -e --arg name "${VM_NAME}" '.list[] | select(.name == $name)' > /dev/null; then
+    echo "VM '${VM_NAME}' exists. Verifying SSH responsiveness..."
+    if ! multipass exec "${VM_NAME}" -- true 2>/dev/null; then
+        echo "VM is unresponsive. Deleting and recreating..."
+        multipass delete --purge "${VM_NAME}" || true
+    fi
+fi
+
 if ! multipass list --format json | jq -e --arg name "${VM_NAME}" '.list[] | select(.name == $name)' > /dev/null; then
     echo "Launching Multipass VM '${VM_NAME}' (8GB RAM, 80GB Disk, Ubuntu 24.04)..."
     multipass launch --name "${VM_NAME}" --memory 8G --disk 80G 24.04
