@@ -49,6 +49,8 @@ override_dh_auto_install:
 	    etc/issue.in > $(DESTDIR)/etc/issue; \
 	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
 	    etc/issue.net.in > $(DESTDIR)/etc/issue.net; \
+	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
+	    etc/motd.in > $(DESTDIR)/etc/motd; \
 	install -d $(DESTDIR)/usr/share/plymouth/themes/zurvan; \
 	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
 	    usr/share/plymouth/themes/zurvan/zurvan.script.in \
@@ -61,8 +63,18 @@ override_dh_auto_install:
 	    -e "s|@DISTRIB_DESCRIPTION@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
 	    usr/share/calamares/branding/zurvan/branding.desc.in \
 	    > $(DESTDIR)/usr/share/calamares/branding/zurvan/branding.desc; \
+	if [ -f usr/share/calamares/branding/zurvan/show.qml ]; then \
+		cp usr/share/calamares/branding/zurvan/show.qml $(DESTDIR)/usr/share/calamares/branding/zurvan/; \
+	fi; \
+	if [ -f usr/share/pixmaps/zurvan-logo.svg ]; then \
+		cp usr/share/pixmaps/zurvan-logo.svg $(DESTDIR)/usr/share/calamares/branding/zurvan/; \
+	fi; \
 	install -d $(DESTDIR)/usr/share/pixmaps; \
-	install -p -m 644 usr/share/pixmaps/* $(DESTDIR)/usr/share/pixmaps/
+	install -p -m 644 usr/share/pixmaps/* $(DESTDIR)/usr/share/pixmaps/; \
+	install -d $(DESTDIR)/usr/share/icons/hicolor/scalable/apps; \
+	if [ -f usr/share/pixmaps/zurvan-logo.svg ]; then \
+		cp usr/share/pixmaps/zurvan-logo.svg $(DESTDIR)/usr/share/icons/hicolor/scalable/apps/zurvan.svg; \
+	fi; \
 
 override_dh_link:
 	dh_link -X os-release

@@ -3,7 +3,7 @@ set -e
 
 case "$1" in
 install|upgrade)
-	for f in /etc/os-release /etc/lsb-release /etc/hostname /etc/issue /etc/issue.net /etc/debian_version; do
+	for f in /etc/os-release /etc/lsb-release /etc/hostname /etc/issue /etc/issue.net /etc/debian_version /etc/motd; do
 		if [ -e "$f" ]; then
 			echo "diverting $f -> $f.distrib"
 			dpkg-divert --package zurvan-base-files --divert "$f.distrib" --rename --add "$f" || true
@@ -11,7 +11,7 @@ install|upgrade)
 	done
 	;;
 abort-upgrade)
-	for f in /etc/os-release /etc/lsb-release /etc/hostname /etc/issue /etc/issue.net /etc/debian_version; do
+	for f in /etc/os-release /etc/lsb-release /etc/hostname /etc/issue /etc/issue.net /etc/debian_version /etc/motd; do
 		dpkg-divert --remove --rename "$f" >/dev/null 2>&1 || true
 	done
 	;;

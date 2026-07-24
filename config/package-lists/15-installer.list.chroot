@@ -1,6 +1,5 @@
 # §15 Installer Framework (package-manifest.md §15)
 #
-# Calamares runs from the live desktop. Calamares branding customization is
-# Phase 3 (M3.3); here we ship the upstream Debian settings so it launches.
+# Calamares runs from the live desktop with Zurvan branding.
 calamares
-calamares-settings-debian
+

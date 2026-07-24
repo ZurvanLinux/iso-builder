@@ -3,7 +3,7 @@ set -e
 
 case "$1" in
 remove)
-	for f in os-release lsb-release hostname issue issue.net debian_version; do
+	for f in os-release lsb-release hostname issue issue.net debian_version motd; do
 		if [ -f "/etc/$f.distrib" ]; then
 			mv -f "/etc/$f.distrib" "/etc/$f" 2>/dev/null || true
 		fi
@@ -11,7 +11,7 @@ remove)
 	done
 	;;
 purge)
-	for f in os-release lsb-release hostname issue issue.net debian_version; do
+	for f in os-release lsb-release hostname issue issue.net debian_version motd; do
 		dpkg-divert --remove --rename "/etc/$f" >/dev/null 2>&1 || true
 	done
 	;;
