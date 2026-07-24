@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+
+# Preseed keyboard-configuration to prevent sysfs USB probing errors in chroot
+if command -v debconf-set-selections >/dev/null 2>&1; then
+    printf "keyboard-configuration keyboard-configuration/layout select English (US)\n" | debconf-set-selections || true
+    printf "keyboard-configuration keyboard-configuration/variant select English (US)\n" | debconf-set-selections || true
+    printf "keyboard-configuration keyboard-configuration/model select pc105\n" | debconf-set-selections || true
+fi
+
+# Ensure sysfs USB mock structure exists if /sys/bus/usb/devices is missing
+if [ ! -d /sys/bus/usb/devices ]; then
+    mkdir -p /sys/bus/usb/devices
+fi
+
+# Mask xfs_scrub units in chroot to avoid non-existent system.slice dependency warnings
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl mask xfs_scrub.service xfs_scrub@.service xfs_scrub_all.timer >/dev/null 2>&1 || true
+fi
