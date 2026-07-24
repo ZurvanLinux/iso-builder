@@ -3,6 +3,11 @@ set -e
 
 systemctl enable ssh.service
 
+# Ensure live user 'user' has a default password ('zurvan') for SSH password auth & ssh-copy-id
+if id "user" >/dev/null 2>&1; then
+    echo "user:zurvan" | chpasswd || true
+fi
+
 if [ -f /etc/ssh/sshd_config ]; then
     sed -i -E '/^AcceptEnv/ s/(LANG|LC_\*)([[:space:]]+|$)//g; s/[[:space:]]+/ /g; s/^[[:space:]]+//' /etc/ssh/sshd_config || true
     if ! grep -qE '^[[:space:]]*PasswordAuthentication' /etc/ssh/sshd_config; then
