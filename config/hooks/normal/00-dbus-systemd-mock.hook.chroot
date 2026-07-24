@@ -1,18 +1,29 @@
 #!/bin/sh
 set -e
 
+# Ensure the socket directory exists with proper permissions
 mkdir -p /run/dbus
+chmod 755 /run/dbus
 
-# Start dbus-daemon in background, ensuring it runs throughout chroot phase
+# Start dbus-daemon if not already running
 if ! pgrep -x dbus-daemon > /dev/null; then
-    dbus-daemon --system --fork --activation=none --nopidfile --syslog-only
-    sleep 1 # Give it a moment to start
+    # Use dbus-uuidgen to ensure a machine-id exists, which dbus-daemon requires
+    if [ ! -f /var/lib/dbus/machine-id ]; then
+        mkdir -p /var/lib/dbus
+        dbus-uuidgen > /var/lib/dbus/machine-id
+    fi
+    
+    # Run dbus-daemon
+    dbus-daemon --system --fork
+    
+    # Wait for the socket to be created
+    for i in $(seq 1 10); do
+        if [ -S /run/dbus/system_bus_socket ]; then
+            break
+        fi
+        sleep 1
+    done
 fi
 
-# If the socket doesn't exist, try starting it again (e.g., if --nopidfile was used)
-if [ ! -e /run/dbus/system_bus_socket ]; then
-    if ! pgrep -x dbus-daemon > /dev/null; then
-        dbus-daemon --system --fork --activation=none --nopidfile --syslog-only
-        sleep 1
-    fi
-fi
+# Export DBUS_SYSTEM_BUS_ADDRESS so packages can find it
+export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
