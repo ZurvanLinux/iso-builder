@@ -16,12 +16,17 @@ if ! multipass list --format json | jq -e --arg name "${VM_NAME}" '.list[] | sel
     multipass launch --name "${VM_NAME}" --memory 8G --disk 80G 24.04
 else
     echo "VM '${VM_NAME}' already exists."
-    STATE=$(multipass info "${VM_NAME}" --format json | jq -r ".info.\"${VM_NAME}\".state" 2>/dev/null || echo "unknown")
+    STATE=$(multipass list --format json | jq -r --arg name "${VM_NAME}" '.[] | select(.name == $name) | .state' 2>/dev/null || echo "unknown")
     if [ "${STATE}" != "Running" ]; then
         echo "Starting VM '${VM_NAME}'..."
         multipass start "${VM_NAME}"
     fi
 fi
+
+echo "Waiting for VM SSH to become ready..."
+while ! multipass exec "${VM_NAME}" -- true 2>/dev/null; do
+    sleep 2
+done
 
 echo "=== 3. Cleaning up old mounts and installing Docker in VM == "
 multipass umount "${VM_NAME}" || true
