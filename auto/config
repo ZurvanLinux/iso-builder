@@ -7,6 +7,8 @@ lb config noauto \
     --distribution trixie \
     --architecture "${ARCH}" \
     --archive-areas "main contrib non-free non-free-firmware" \
+    --archive-areas-binary "main contrib non-free non-free-firmware" \
+    --parent-archive-areas "main contrib non-free non-free-firmware" \
     --binary-images iso-hybrid \
     --debian-installer none \
     --mirror-bootstrap        "https://deb.debian.org/debian" \

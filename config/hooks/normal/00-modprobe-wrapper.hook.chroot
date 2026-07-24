@@ -8,7 +8,7 @@ if [ -x /sbin/modprobe ] && [ ! -f /sbin/modprobe.real ]; then
 if [ ! -d "/lib/modules/$(uname -r)" ]; then
     exit 0
 fi
-exec /sbin/modprobe.real "$@"
+/sbin/modprobe.real "$@" >/dev/null 2>&1 || exit 0
 EOF
     chmod +x /sbin/modprobe
 fi
