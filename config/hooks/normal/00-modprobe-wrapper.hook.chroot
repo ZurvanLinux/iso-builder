@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+if [ -x /sbin/modprobe ] && [ ! -f /sbin/modprobe.real ]; then
+    dpkg-divert --add --rename --divert /sbin/modprobe.real /sbin/modprobe
+    cat << 'EOF' > /sbin/modprobe
+#!/bin/sh
+if [ ! -d "/lib/modules/$(uname -r)" ]; then
+    exit 0
+fi
+exec /sbin/modprobe.real "$@"
+EOF
+    chmod +x /sbin/modprobe
+fi
