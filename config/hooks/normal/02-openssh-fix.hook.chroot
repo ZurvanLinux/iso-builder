@@ -8,12 +8,25 @@ if id "user" >/dev/null 2>&1; then
     echo "user:zurvan" | chpasswd || true
 fi
 
+if [ -d /etc/ssh/sshd_config.d ]; then
+    printf "PasswordAuthentication yes\nKbdInteractiveAuthentication yes\n" > /etc/ssh/sshd_config.d/99-password-auth.conf
+fi
+
 if [ -f /etc/ssh/sshd_config ]; then
     sed -i -E '/^AcceptEnv/ s/(LANG|LC_\*)([[:space:]]+|$)//g; s/[[:space:]]+/ /g; s/^[[:space:]]+//' /etc/ssh/sshd_config || true
+    
+    # PasswordAuthentication
     if ! grep -qE '^[[:space:]]*PasswordAuthentication' /etc/ssh/sshd_config; then
         echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
     else
         sed -i -E 's/^[[:space:]]*PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config || true
+    fi
+
+    # KbdInteractiveAuthentication
+    if ! grep -qE '^[[:space:]]*KbdInteractiveAuthentication' /etc/ssh/sshd_config; then
+        echo "KbdInteractiveAuthentication yes" >> /etc/ssh/sshd_config
+    else
+        sed -i -E 's/^[[:space:]]*KbdInteractiveAuthentication.*/KbdInteractiveAuthentication yes/' /etc/ssh/sshd_config || true
     fi
 fi
 
