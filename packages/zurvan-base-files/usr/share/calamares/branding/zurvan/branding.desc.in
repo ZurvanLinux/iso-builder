@@ -14,3 +14,6 @@ productBanner=zurvan-logo.svg
 welcomeBackgroundImage=
 wallpaper=
 wallpapername=
+
+[Slideshow]
+show=show.qml
