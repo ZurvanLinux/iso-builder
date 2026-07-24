@@ -21,6 +21,5 @@ lb config noauto \
     --iso-publisher   "Zurvan Linux - https://zurvanlinux.org" \
     --iso-preparer    "Zurvan Linux live-build pipeline (iso-builder)" \
     --iso-volume      "ZURVAN_LIVE" \
-    --linux-packages  "linux-image-${ARCH}" \
     "${@}"
 
