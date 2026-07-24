@@ -49,6 +49,8 @@ override_dh_auto_install:
 	    etc/issue.in > $(DESTDIR)/etc/issue; \
 	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
 	    etc/issue.net.in > $(DESTDIR)/etc/issue.net; \
+	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
+	    etc/motd.in > $(DESTDIR)/etc/motd; \
 	install -d $(DESTDIR)/usr/share/plymouth/themes/zurvan; \
 	sed -e "s|@PRETTY_NAME@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
 	    usr/share/plymouth/themes/zurvan/zurvan.script.in \
