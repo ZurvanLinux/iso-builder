@@ -1,0 +1,12 @@
+# Exclude grub-efi-arm64 packages from chroot installation
+# This should prevent them from being removed during the binary stage.
+grub-efi-arm64-bin
+grub-efi-arm64-signed
+grub-efi-arm64-unsigned
+grub2-common
+mokutil
+mtools
+shim-helpers-arm64-signed
+shim-signed
+shim-signed-common
+shim-unsigned

@@ -2,7 +2,17 @@
 set -e
 
 mkdir -p /run/dbus
+
+# Start dbus-daemon in background, ensuring it runs throughout chroot phase
+if ! pgrep -x dbus-daemon > /dev/null; then
+    dbus-daemon --system --fork --activation=none --nopidfile --syslog-only
+    sleep 1 # Give it a moment to start
+fi
+
+# If the socket doesn't exist, try starting it again (e.g., if --nopidfile was used)
 if [ ! -e /run/dbus/system_bus_socket ]; then
-    # Provide a placeholder or dummy socket path if requested
-    touch /run/dbus/system_bus_socket || true
+    if ! pgrep -x dbus-daemon > /dev/null; then
+        dbus-daemon --system --fork --activation=none --nopidfile --syslog-only
+        sleep 1
+    fi
 fi

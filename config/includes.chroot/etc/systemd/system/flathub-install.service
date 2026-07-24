@@ -1,0 +1,10 @@
+[Unit]
+Description=Install Flathub apps at first boot
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c "if command -v flatpak >/dev/null 2>&1; then flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true; FLATHUB_APPS=\'com.visualstudio.code\ncom.obsproject.Studio\norg.gahshomar.Gahshomar\ncom.leinardi.gst\'; for app in $FLATHUB_APPS; do if ! flatpak install --noninteractive flathub \"$app\" >/dev/null 2>&1; then echo \"WARNING: failed to install $app from Flathub\" >&2; fi; done; flatpak update --noninteractive || true; else echo \"WARNING: flatpak not found, skipping Flathub pre-install\" >&2; fi"
+
+[Install]
+WantedBy=multi-user.target

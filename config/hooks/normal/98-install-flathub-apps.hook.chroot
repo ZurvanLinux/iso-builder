@@ -1,40 +1,10 @@
-#!/bin/sh
-# Zurvan Linux chroot hook — pre-install Flathub apps into the live ISO.
-# Runs during the live-build chroot stage after flatpak is installed.
-# On CI/build hosts without user-namespace support, bubblewrap may fail;
-# this hook degrades to a best-effort warning instead of aborting the build.
+[Unit]
+Description=Install Flathub apps at first boot
 
-FLATHUB_APPS="
-com.visualstudio.code
-com.obsproject.Studio
-org.gahshomar.Gahshomar
-com.leinardi.gst
-"
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c "if command -v flatpak >/dev/null 2>&1; then flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true; FLATHUB_APPS='com.visualstudio.code\ncom.obsproject.Studio\norg.gahshomar.Gahshomar\ncom.leinardi.gst'; for app in $FLATHUB_APPS; do if ! flatpak install --noninteractive flathub \"$app\" >/dev/null 2>&1; then echo \"WARNING: failed to install $app from Flathub\" >&2; fi; done; flatpak update --noninteractive || true; else echo \"WARNING: flatpak not found, skipping Flathub pre-install\" >&2; fi"
 
-if command -v flatpak >/dev/null 2>&1; then
-    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
-
-    for app in $FLATHUB_APPS; do
-        if ! flatpak install --noninteractive flathub "$app" >/dev/null 2>&1; then
-            echo "WARNING: failed to install $app from Flathub" >&2
-        fi
-    done
-
-    flatpak update --noninteractive || true
-
-    installed=$(flatpak list --app --columns=application 2>/dev/null || true)
-    missing=0
-    for app in $FLATHUB_APPS; do
-        if ! echo "$installed" | grep -qxF "$app"; then
-            echo "WARNING: $app was not pre-installed" >&2
-            missing=$((missing + 1))
-        fi
-    done
-    if [ "$missing" -gt 0 ]; then
-        echo "WARNING: $missing Flathub app(s) were not pre-installed (this is expected in containerized/restricted build environments; they can be installed after boot)" >&2
-    fi
-else
-    echo "WARNING: flatpak not found, skipping Flathub pre-install" >&2
-fi
-
-exit 0
+[Install]
+WantedBy=multi-user.target

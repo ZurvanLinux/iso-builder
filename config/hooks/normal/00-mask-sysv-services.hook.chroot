@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+
+# Mask SysV init scripts for guest agents to avoid warnings
+# This is a more robust approach than relying solely on systemd overrides,
+# as it directly prevents SysV compatibility issues during the build.
+for svc in qemu-guest-agent.service spice-vdagentd.service open-vm-tools.service;
+do
+    if [ -f "/usr/lib/systemd/system/${svc}" ]; then
+        # Ensure the service is masked if it exists
+        systemctl mask "${svc}" >/dev/null 2>&1 || true
+    fi
+done
+
+exit 0

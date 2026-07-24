@@ -1,0 +1,4 @@
+# Dummy fuse.ko module content - generic placeholder
+# This is a placeholder. For build-time issues, relying on the modprobe wrapper is key.
+# At runtime, the actual fuse module from the ISO's kernel will be used.
+

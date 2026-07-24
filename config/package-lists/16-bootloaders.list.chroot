@@ -1,0 +1,14 @@
+# §16 Bootloader Packages (package-manifest.md §16)
+#
+# These packages are required for the live ISO to boot via UEFI ARM64.
+# They are removed during the chroot cleanup stage if not listed here.
+grub-efi-arm64-bin
+grub-efi-arm64-signed
+grub-efi-arm64-unsigned
+grub2-common
+mokutil
+mtools
+shim-helpers-arm64-signed
+shim-signed
+shim-signed-common
+shim-unsigned

@@ -1,6 +1,13 @@
 #!/bin/sh
 set -e
 
-systemctl enable qemu-guest-agent.service
-systemctl enable spice-vdagentd.service
-systemctl enable open-vm-tools.service
+for svc in qemu-guest-agent.service spice-vdagentd.service open-vm-tools.service; do
+    if [ -f "/usr/lib/systemd/system/${svc}" ]; then
+        mkdir -p /etc/systemd/system/${svc}.d
+        cat > /etc/systemd/system/${svc}.d/enable.conf << EOF
+[Install]
+WantedBy=multi-user.target
+EOF
+        systemctl enable "${svc}" >/dev/null 2>&1 || true
+    fi
+done
