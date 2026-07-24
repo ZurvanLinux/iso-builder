@@ -27,3 +27,5 @@ parted
 iotop
 ncdu
 bat
+bup
+python3-requests
