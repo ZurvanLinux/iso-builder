@@ -3,3 +3,5 @@ LANGUAGE=fa:en
 
 [Formats]
 LANG=fa_IR.UTF-8
+Calendar=jalali
+NumericSystem=traditional
