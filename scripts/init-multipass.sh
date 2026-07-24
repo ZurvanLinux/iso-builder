@@ -40,8 +40,8 @@ multipass exec "${VM_NAME}" -- bash -c "
 echo "=== 5. Running native ARM64 Debian Trixie container build matching CI workflow == "
 multipass exec "${VM_NAME}" -- bash -c "
     cd ${GUEST_DIR} && \
-    sudo docker run --rm --privileged -v \$(pwd):/workspace -w /workspace \
-        debian:trixie@sha256:d63a99144861e4e460196ed93d07777490cbeab53ca660c434f2a589a6c50ea3 \
+    sudo docker run --rm --platform linux/arm64 --privileged -v \$(pwd):/workspace -w /workspace \
+        debian:trixie \
         bash -c '
             set -eux
             export DEBIAN_FRONTEND=noninteractive
