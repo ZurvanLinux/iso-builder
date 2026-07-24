@@ -21,7 +21,5 @@ lb config noauto \
     --iso-application "Zurvan Linux" \
     --iso-publisher   "Zurvan Linux - https://zurvanlinux.org" \
     --iso-preparer    "Zurvan Linux live-build pipeline (iso-builder)" \
-        --exclude-packages "grub-efi-arm64-bin grub-efi-arm64-signed grub-efi-arm64-unsigned grub2-common mokutil mtools shim-helpers-arm64-signed shim-signed shim-signed-common shim-unsigned"
- \
     "${@}"
 

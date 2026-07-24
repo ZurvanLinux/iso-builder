@@ -44,11 +44,9 @@ multipass exec "${VM_NAME}" -- bash -c "
     sudo usermod -aG docker ubuntu || true
 "
 
-echo "=== 4. Cloning repo inside VM == "
-multipass exec "${VM_NAME}" -- bash -c "
-    sudo rm -rf ${GUEST_DIR} && \
-    git clone -b main https://github.com/ZurvanLinux/iso-builder.git ${GUEST_DIR}
-"
+echo "=== 4. Mounting local repo to VM == "
+multipass exec "${VM_NAME}" -- sudo mkdir -p "${GUEST_DIR}"
+multipass mount "${PWD}" "${VM_NAME}:${GUEST_DIR}"
 
 echo "=== 5. Running native ARM64 Debian Trixie container build matching CI workflow == "
 multipass exec "${VM_NAME}" -- bash -c "
