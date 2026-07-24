@@ -63,8 +63,15 @@ override_dh_auto_install:
 	    -e "s|@DISTRIB_DESCRIPTION@|Zurvan Linux $${DISTRIB_RELEASE}|g" \
 	    usr/share/calamares/branding/zurvan/branding.desc.in \
 	    > $(DESTDIR)/usr/share/calamares/branding/zurvan/branding.desc; \
+	if [ -f usr/share/pixmaps/zurvan-logo.svg ]; then \
+		cp usr/share/pixmaps/zurvan-logo.svg $(DESTDIR)/usr/share/calamares/branding/zurvan/; \
+	fi; \
 	install -d $(DESTDIR)/usr/share/pixmaps; \
-	install -p -m 644 usr/share/pixmaps/* $(DESTDIR)/usr/share/pixmaps/
+	install -p -m 644 usr/share/pixmaps/* $(DESTDIR)/usr/share/pixmaps/; \
+	install -d $(DESTDIR)/usr/share/icons/hicolor/scalable/apps; \
+	if [ -f usr/share/pixmaps/zurvan-logo.svg ]; then \
+		cp usr/share/pixmaps/zurvan-logo.svg $(DESTDIR)/usr/share/icons/hicolor/scalable/apps/zurvan.svg; \
+	fi; \
 
 override_dh_link:
 	dh_link -X os-release

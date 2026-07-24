@@ -8,7 +8,7 @@ homepage=https://zurvanlinux.org/
 bugreport=https://github.com/ZurvanLinux/iso-builder/issues
 
 [Image]
-productlogo=
-productlogoname=
+productlogo=zurvan-logo.svg
+productlogoname=zurvan-logo.svg
 wallpaper=
 wallpapername=
