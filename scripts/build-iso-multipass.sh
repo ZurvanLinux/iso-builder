@@ -11,7 +11,7 @@ if ! command -v multipass &> /dev/null; then
 fi
 
 echo "=== 2. Checking Multipass VM (${VM_NAME}) == "
-if ! multipass info "${VM_NAME}" &> /dev/null; then
+if ! multipass list --format json | jq -e --arg name "${VM_NAME}" '.list[] | select(.name == $name)' > /dev/null; then
     echo "Launching Multipass VM '${VM_NAME}' (8GB RAM, 80GB Disk, Ubuntu 24.04)..."
     multipass launch --name "${VM_NAME}" --memory 8G --disk 80G 24.04
 else
