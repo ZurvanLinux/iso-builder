@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Zurvan
+Description=Minimal cosmic splash for Zurvan OS
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/zurvan
+ScriptFile=/usr/share/plymouth/themes/zurvan/zurvan.script
