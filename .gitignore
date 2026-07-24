@@ -9,6 +9,7 @@ chroot/
 binary/
 .build/
 .cache/
+!config/hooks/binary/
 
 # generated ISO images and metadata
 *.iso

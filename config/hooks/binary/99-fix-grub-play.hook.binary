@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+
+# Stub out the 'play' command in all grub.cfg files within the binary image structure
+# to prevent GRUB errors (e.g. play.mod not found) on ARM64 and other UEFI platforms.
+if [ -d binary ]; then
+    find binary -name "grub.cfg" -type f | while read -r cfg; do
+        if ! grep -q 'function play' "$cfg"; then
+            echo "Injecting dummy play function into $cfg"
+            temp_file="$(mktemp)"
+            echo 'function play { true; }' > "$temp_file"
+            cat "$cfg" >> "$temp_file"
+            mv "$temp_file" "$cfg"
+        fi
+    done
+fi
+
+exit 0

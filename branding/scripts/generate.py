@@ -17,12 +17,14 @@ Requirements:
 """
 
 import base64
+import io
 import json
 import os
 import sys
 import time
 import urllib.request
 import urllib.error
+from PIL import Image
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PATHS
@@ -260,10 +262,15 @@ def generate_image(api_key: str, prompt: str, reference_image_bytes: bytes | Non
 
 
 def save(img_bytes: bytes, paths: list[str]):
+    image = Image.open(io.BytesIO(img_bytes))
+    png_buffer = io.BytesIO()
+    image.save(png_buffer, format="PNG")
+    png_bytes = png_buffer.getvalue()
+
     for path in paths:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "wb") as f:
-            f.write(img_bytes)
+            f.write(png_bytes)
         print(f"     ✓ {path}")
 
 
