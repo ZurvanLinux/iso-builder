@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+
+mkdir -p /run/dbus
+if [ ! -e /run/dbus/system_bus_socket ]; then
+    # Provide a placeholder or dummy socket path if requested
+    touch /run/dbus/system_bus_socket || true
+fi
