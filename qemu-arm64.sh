@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 VARS_FILE="/tmp/edk2-arm-vars.fd"
 rm -f "$VARS_FILE"
