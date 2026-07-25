@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 # Source generated ISO metadata from zurvan-config (if available)
 [ -f "${SCRIPT_DIR}/.zurvan-env" ] && . "${SCRIPT_DIR}/.zurvan-env"
 
-ARCH="${1:-${ARCH:-amd64}}"
+ARCH="${1:-${ZURVAN_ARCH:-${ARCH:-amd64}}}"
 
 lb config noauto \
     --distribution "${DEBIAN_CODENAME}" \
