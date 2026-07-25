@@ -30,8 +30,8 @@ jobs:
         arch: [amd64, arm64]
     env:
       # Mirror of build.env — update both when bumping Debian.
-      DEBIAN_IMAGE_AMD64: debian:trixie@sha256:d63a99144861e4e460196ed93d07777490cbeab53ca660c434f2a589a6c50ea3
-      DEBIAN_IMAGE_ARM64: debian:trixie@sha256:8ac748152418b19ff289badbf878c42561c5b0cd922ade5fe4fa37cf0769b521
+      DEBIAN_IMAGE_AMD64: debian:trixie@sha256:fac46bff2e02f51425b6e33b0e1169f55dfb053d83511ca28aa50c09fd5ed7a4
+      DEBIAN_IMAGE_ARM64: debian:trixie@sha256:fac46bff2e02f51425b6e33b0e1169f55dfb053d83511ca28aa50c09fd5ed7a4
       ZURVAN_CONFIG_REF: f6f1a83
       ZURVAN_ARCH: ${{ matrix.arch }}
     container:
@@ -370,8 +370,8 @@ jobs:
         arch: [amd64, arm64]
     env:
       # Mirror of build.env — update both when bumping Debian.
-      DEBIAN_IMAGE_AMD64: debian:trixie@sha256:d63a99144861e4e460196ed93d07777490cbeab53ca660c434f2a589a6c50ea3
-      DEBIAN_IMAGE_ARM64: debian:trixie@sha256:8ac748152418b19ff289badbf878c42561c5b0cd922ade5fe4fa37cf0769b521
+      DEBIAN_IMAGE_AMD64: debian:trixie@sha256:fac46bff2e02f51425b6e33b0e1169f55dfb053d83511ca28aa50c09fd5ed7a4
+      DEBIAN_IMAGE_ARM64: debian:trixie@sha256:fac46bff2e02f51425b6e33b0e1169f55dfb053d83511ca28aa50c09fd5ed7a4
       ZURVAN_CONFIG_REF: f6f1a83
       ZURVAN_ARCH: ${{ matrix.arch }}
     container:
