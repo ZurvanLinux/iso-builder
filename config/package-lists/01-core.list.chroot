@@ -5,6 +5,7 @@
 # The kernel package is supplied by the arch-conditional kernel list
 # written by CI: kernel-amd64.list.chroot or kernel-arm64.list.chroot.
 live-boot
+live-boot-initramfs-tools
 live-config
 live-tools
 xserver-xorg
