@@ -30,7 +30,7 @@ jobs:
         arch: [amd64, arm64]
     env:
       # Mirror of build.env — update both when bumping Debian.
-      ZURVAN_CONFIG_REF: 78c7f9b7b4c1eaa59b821f586d41d82dec25abc6
+      ZURVAN_CONFIG_REF: b8a8bec52f019e9a96edc3432cd433983d233126
       ZURVAN_ARCH: ${{ matrix.arch }}
     container:
       image: ${{ matrix.arch == 'amd64'
@@ -371,7 +371,7 @@ jobs:
         arch: [amd64, arm64]
     env:
       # Mirror of build.env — update both when bumping Debian.
-      ZURVAN_CONFIG_REF: 78c7f9b7b4c1eaa59b821f586d41d82dec25abc6
+      ZURVAN_CONFIG_REF: b8a8bec52f019e9a96edc3432cd433983d233126
       ZURVAN_ARCH: ${{ matrix.arch }}
     container:
       image: ${{ matrix.arch == 'amd64'
