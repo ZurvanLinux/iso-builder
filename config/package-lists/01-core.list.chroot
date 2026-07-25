@@ -4,6 +4,9 @@
 # not auto-install a kernel when --debian-installer none is used.
 # The kernel package is supplied by the arch-conditional kernel list
 # written by CI: kernel-amd64.list.chroot or kernel-arm64.list.chroot.
+live-boot
+live-config
+live-tools
 xserver-xorg
 xwayland
 network-manager
