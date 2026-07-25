@@ -1,21 +1,13 @@
 #!/bin/sh
 set -e
 
-# Ensure a machine-id exists so package postinst scripts that talk to
-# D-Bus do not fail. We do NOT start a daemon — live-build's policy-rc.d
-# already blocks service starts, and most postinst hooks handle a missing
-# bus gracefully.
-
 mkdir -p /run/dbus
 chmod 755 /run/dbus
 
-if [ ! -f /var/lib/dbus/machine-id ]; then
-    mkdir -p /var/lib/dbus
-    if command -v dbus-uuidgen >/dev/null 2>&1; then
-        dbus-uuidgen > /var/lib/dbus/machine-id
-    elif [ -f /etc/machine-id ]; then
-        cp /etc/machine-id /var/lib/dbus/machine-id
-    else
-        echo "zurvan-build-$(date +%s)" > /var/lib/dbus/machine-id
-    fi
+if command -v dbus-uuidgen >/dev/null 2>&1; then
+    dbus-uuidgen --ensure
+elif [ -f /etc/machine-id ]; then
+    cp /etc/machine-id /var/lib/dbus/machine-id
+else
+    echo "zurvan-build-$(date +%s)" > /var/lib/dbus/machine-id
 fi

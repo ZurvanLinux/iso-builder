@@ -1,6 +1,14 @@
 #!/bin/sh
 set -e
 
+# Enable SSH for the live ISO session. The live user 'user' gets a known
+# password 'zurvan' so users can SSH in immediately. This is intentional:
+# - Live ISOs are ephemeral and not intended for production use
+# - No SSH keys are pre-configured for new users
+# - Calamares installer (if used) should prompt for a real password
+# The live SSH config is in a drop-in so the installed system's sshd_config
+# remains untouched.
+
 systemctl enable ssh.service 2>/dev/null || true
 
 if id "user" >/dev/null 2>&1; then

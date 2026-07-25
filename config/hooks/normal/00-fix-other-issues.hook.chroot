@@ -2,14 +2,12 @@
 set -e
 
 if command -v debconf-set-selections >/dev/null 2>&1; then
-    printf "keyboard-configuration keyboard-configuration/layout select English (US)\n" | debconf-set-selections || true
-    printf "keyboard-configuration keyboard-configuration/variant select English (US)\n" | debconf-set-selections || true
-    printf "keyboard-configuration keyboard-configuration/model select pc105\n" | debconf-set-selections || true
+    printf "keyboard-configuration keyboard-configuration/layout select English (US)\n
+keyboard-configuration keyboard-configuration/variant select English (US)\n
+keyboard-configuration keyboard-configuration/model select pc105\n" | debconf-set-selections || true
 fi
 
 mkdir -p /etc/systemd/system
-for unit in xfs_scrub.service xfs_scrub@.service xfs_scrub_all.timer; do
-    if [ ! -e "/etc/systemd/system/${unit}" ]; then
-        ln -sf /dev/null "/etc/systemd/system/${unit}"
-    fi
-done
+ln -sf /dev/null /etc/systemd/system/xfs_scrub.service
+ln -sf /dev/null /etc/systemd/system/xfs_scrub@.service
+ln -sf /dev/null /etc/systemd/system/xfs_scrub_all.timer

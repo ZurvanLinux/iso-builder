@@ -1,11 +1,13 @@
 #!/bin/sh
 set -e
 
-# Enable the first-boot Flathub installer service.
-# We create the symlink manually instead of calling systemctl (which
-# would try to talk to a non-running systemd inside the build chroot).
 SVC=flathub-install.service
 TARGET_WANT=/etc/systemd/system/graphical.target.wants
+
+if [ ! -f "/etc/systemd/system/${SVC}" ]; then
+    echo "error: ${SVC} not found" >&2
+    exit 1
+fi
 
 mkdir -p "${TARGET_WANT}"
 ln -sf "/etc/systemd/system/${SVC}" "${TARGET_WANT}/${SVC}"
