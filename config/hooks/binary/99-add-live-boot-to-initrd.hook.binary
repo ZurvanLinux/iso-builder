@@ -11,7 +11,7 @@ if [ -z "$INITRD" ]; then
 fi
 
 TMPDIR=$(mktemp -d)
-trap "rm -rf $TMPDIR" EXIT
+trap 'rm -rf "$TMPDIR"' EXIT
 
 # Extract initrd
 cd "$TMPDIR"
