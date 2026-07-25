@@ -43,6 +43,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Load build configuration from build.env
+        shell: bash
         run: |
           set -eu
           . ./build.env
@@ -382,6 +383,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Load build configuration from build.env
+        shell: bash
         run: |
           set -eu
           . ./build.env
