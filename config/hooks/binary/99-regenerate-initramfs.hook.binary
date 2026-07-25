@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+if [ -d binary ]; then
+    mount --bind /dev binary/dev 2>/dev/null || true
+    mount --bind /proc binary/proc 2>/dev/null || true
+    mount --bind /sys binary/sys 2>/dev/null || true
+    mount --bind /run binary/run 2>/dev/null || true
+
+    chroot binary /bin/sh -c 'update-initramfs -u -k all' 2>/dev/null || true
+
+    umount binary/run 2>/dev/null || true
+    umount binary/sys 2>/dev/null || true
+    umount binary/proc 2>/dev/null || true
+    umount binary/dev 2>/dev/null || true
+fi
