@@ -51,9 +51,10 @@ multipass exec "${VM_NAME}" -- bash -c "
     mkdir -p ${GUEST_DIR}
 "
 
-# Tar the local repo (excluding build artifacts) and stream to VM
-echo "Streaming local files to VM..."
-tar czf - \
+# Create a tarball of the local repo (excluding build artifacts) and transfer it
+TARBALL="/tmp/zurvan-iso-builder.tar.gz"
+echo "Creating local tarball..."
+COPYFILE_DISABLE=1 tar czf "${TARBALL}" \
     --exclude='.git' \
     --exclude='chroot' \
     --exclude='binary' \
@@ -64,7 +65,15 @@ tar czf - \
     --exclude='scripts/out' \
     --exclude='scripts/lb-build-*' \
     --exclude='.kilo' \
-    . | multipass exec "${VM_NAME}" -- bash -c "cd ${GUEST_DIR} && tar xzf -"
+    --exclude='.DS_Store' \
+    -C "$(pwd)" .
+
+echo "Transferring tarball to VM..."
+multipass transfer "${TARBALL}" "${VM_NAME}:/tmp/zurvan-iso-builder.tar.gz"
+
+echo "Extracting in VM..."
+multipass exec "${VM_NAME}" -- bash -c "cd ${GUEST_DIR} && tar xzf /tmp/zurvan-iso-builder.tar.gz && rm -f /tmp/zurvan-iso-builder.tar.gz"
+rm -f "${TARBALL}"
 
 echo "=== 5. Running native Debian Trixie container build (${ARCH}) == "
 GRUB_PKGS=""
