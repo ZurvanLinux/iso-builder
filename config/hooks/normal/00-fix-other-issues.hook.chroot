@@ -1,15 +1,15 @@
 #!/bin/sh
 set -e
 
-# Preseed keyboard-configuration to prevent interactive prompts during build.
 if command -v debconf-set-selections >/dev/null 2>&1; then
     printf "keyboard-configuration keyboard-configuration/layout select English (US)\n" | debconf-set-selections || true
     printf "keyboard-configuration keyboard-configuration/variant select English (US)\n" | debconf-set-selections || true
     printf "keyboard-configuration keyboard-configuration/model select pc105\n" | debconf-set-selections || true
 fi
 
-# Mask xfs_scrub units that reference non-existent system.slice targets
-# inside the build chroot.
-if command -v systemctl >/dev/null 2>&1; then
-    systemctl mask xfs_scrub.service xfs_scrub@.service xfs_scrub_all.timer >/dev/null 2>&1 || true
-fi
+mkdir -p /etc/systemd/system
+for unit in xfs_scrub.service xfs_scrub@.service xfs_scrub_all.timer; do
+    if [ ! -e "/etc/systemd/system/${unit}" ]; then
+        ln -sf /dev/null "/etc/systemd/system/${unit}"
+    fi
+done

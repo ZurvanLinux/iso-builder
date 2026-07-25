@@ -9,5 +9,6 @@ Package: zurvan-base-files
 Architecture: all
 Depends: ${misc:Depends}, base-files (>= 2.1.12)
 Replaces: base-files
+Breaks: base-files (<< 14)
 Description: Zurvan Linux base system identity
  Overrides Debian identity files to provide Zurvan Linux branding.

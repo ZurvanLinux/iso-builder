@@ -24,7 +24,7 @@ jobs:
         run: |
           set -eux
           shopt -s globstar nullglob
-          files=(**/*.sh **/*.hook.chroot)
+          files=(**/*.sh **/*.hook.chroot **/*.hook.binary)
           if [ ${#files[@]} -eq 0 ]; then
             echo "No shell files found"
           else
@@ -34,7 +34,7 @@ jobs:
         run: |
           set -eux
           shopt -s globstar nullglob
-          for f in **/*.sh **/*.hook.chroot; do
+          for f in **/*.sh **/*.hook.chroot **/*.hook.binary; do
             bash -n "$f"
           done
       - name: yamllint

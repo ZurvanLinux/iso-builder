@@ -14,7 +14,7 @@
 # - fonts-freefarsi: FreeFarsi TrueType Persian font (FPF project)
 # - fonts-farsiweb: Titr, Nazli, Nazli Bold, Homa
 # - fonts-hosny-amiri: Amiri Naskh-style Arabic/Persian typeface
-# - fonts-noto: Noto metapackage with broad Arabic-script coverage
+# - fonts-noto-core: Noto core fonts with broad Arabic-script coverage
 fonts-vazirmatn
 fontconfig
 fonts-noto-color-emoji
@@ -22,4 +22,4 @@ fonts-unifont
 fonts-freefarsi
 fonts-farsiweb
 fonts-hosny-amiri
-fonts-noto
+fonts-noto-core
