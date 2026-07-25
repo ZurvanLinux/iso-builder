@@ -1,0 +1,27 @@
+#!/bin/sh
+set -e
+
+# Restore the real modprobe binary before the initramfs is regenerated.
+#
+# The 00-modprobe-wrapper.hook.chroot hook diverts /sbin/modprobe to a
+# build-time stub so that package postinst scripts that call modprobe do not
+# fail inside the build container (which has no running kernel/modules).
+#
+# That diversion MUST be reverted before 98-regenerate-initramfs.hook.chroot
+# runs update-initramfs. Otherwise initramfs-tools copies the stub — instead of
+# the real kmod modprobe — into the initramfs. On boot the initramfs then cannot
+# load a single kernel module (storage, filesystem, input, display drivers...),
+# and the system hangs at a blinking cursor instead of reaching the live
+# session.
+
+if [ -x /sbin/modprobe.real ]; then
+    rm -f /sbin/modprobe
+    dpkg-divert --quiet --remove --rename --divert /sbin/modprobe.real /sbin/modprobe 2>/dev/null \
+        || mv /sbin/modprobe.real /sbin/modprobe
+fi
+
+# Sanity check: modprobe must be a real ELF binary, not a shell stub.
+if [ -f /sbin/modprobe ] && head -c2 /sbin/modprobe | grep -q '#!'; then
+    echo "ERROR: /sbin/modprobe is still a shell script after restore — initramfs would be broken" >&2
+    exit 1
+fi

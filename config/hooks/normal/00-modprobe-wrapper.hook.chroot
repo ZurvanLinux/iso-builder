@@ -4,6 +4,12 @@ set -e
 # Wrap modprobe so it never fails inside the build chroot.
 # Many package postinst scripts call modprobe, which fails in a container
 # that lacks kernel modules. This diversion ensures those calls are harmless.
+#
+# IMPORTANT: This diversion MUST be reverted before update-initramfs runs,
+# otherwise the stub gets copied into the initramfs and NO kernel modules
+# can be loaded at boot (system hangs at a blinking cursor).
+# The revert is handled by 97-restore-modprobe.hook.chroot, which runs just
+# before 98-regenerate-initramfs.hook.chroot.
 
 MODPROBE_REAL=/sbin/modprobe.real
 

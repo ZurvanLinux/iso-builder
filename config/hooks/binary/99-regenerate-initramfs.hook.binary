@@ -7,7 +7,16 @@ if [ -d binary ]; then
     mount --bind /sys binary/sys 2>/dev/null || true
     mount --bind /run binary/run 2>/dev/null || true
 
-    chroot binary /bin/sh -c 'update-initramfs -u -k all' 2>/dev/null || true
+    echo "=== Regenerating initramfs ===" >&2
+    if chroot binary /bin/sh -c 'which update-initramfs' 2>/dev/null; then
+        echo "update-initramfs found in chroot" >&2
+        chroot binary /bin/sh -c 'update-initramfs -u -k all' >&2 2>&1 || {
+            echo "update-initramfs failed" >&2
+            false
+        }
+    else
+        echo "update-initramfs NOT found in chroot" >&2
+    fi
 
     umount binary/run 2>/dev/null || true
     umount binary/sys 2>/dev/null || true
