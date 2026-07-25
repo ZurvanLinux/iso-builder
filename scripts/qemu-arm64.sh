@@ -20,5 +20,5 @@ sudo qemu-system-aarch64 \
   -device usb-audio,bus=xhci.0,audiodev=audio0 \
   -netdev vmnet-host,id=net0 \
   -device virtio-net-pci,netdev=net0 \
-  -drive file=/Users/mohammad/Downloads/zurvan-live-iso-arm64/live-image-arm64.hybrid.iso,if=virtio,format=raw,readonly=on \
+  -drive file=/Users/mohammad/Documents/GitHub/iso-builder/scripts/out/live-image-arm64.hybrid.iso,if=virtio,format=raw,readonly=on \
   -display cocoa,zoom-to-fit=on

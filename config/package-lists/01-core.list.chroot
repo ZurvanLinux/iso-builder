@@ -13,5 +13,5 @@ eject
 locales
 openssh-server
 dbus
-dbus-systemd
-policykit-1
+polkitd
+pkexec

@@ -50,6 +50,15 @@ multipass exec "${VM_NAME}" -- bash -c "
     git clone -b main https://github.com/ZurvanLinux/iso-builder.git ${GUEST_DIR}
 "
 
+echo "=== 4b. Applying local config fixes (mirroring committed changes) == "
+multipass exec "${VM_NAME}" -- bash -c "
+    cd ${GUEST_DIR}
+    sed -i 's/dbus-systemd/polkitd/g' config/package-lists/01-core.list.chroot
+    sed -i 's/policykit-1/pkexec/g' config/package-lists/01-core.list.chroot
+    sed -i 's/ --exclude-packages [^ ]*//g' auto/config || true
+    printf '%s\n' '# (Package list intentionally kept for reference, but should be removed from chroot build)' > config/package-lists/17-grub-exclusions.list.chroot
+"
+
 echo "=== 5. Running native ARM64 Debian Trixie container build matching CI workflow == "
 multipass exec "${VM_NAME}" -- bash -c "
     cd ${GUEST_DIR} && \
