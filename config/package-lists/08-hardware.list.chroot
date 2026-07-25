@@ -10,6 +10,7 @@ firmware-linux-nonfree
 firmware-iwlwifi
 firmware-realtek
 firmware-atheros
+firmware-b43-installer
 upower
 bluez
 fprintd

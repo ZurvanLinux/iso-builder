@@ -1,4 +1,14 @@
 #!/bin/bash
+set -eu
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ISO="${1:-${SCRIPT_DIR}/out/live-image-arm64.hybrid.iso}"
+
+if [ ! -f "$ISO" ]; then
+    echo "error: ISO not found at '$ISO'" >&2
+    echo "usage: $0 [path/to/live-image-arm64.hybrid.iso]" >&2
+    exit 1
+fi
 
 VARS_FILE="/tmp/edk2-arm-vars.fd"
 rm -f "$VARS_FILE"
@@ -20,5 +30,5 @@ sudo qemu-system-aarch64 \
   -device usb-audio,bus=xhci.0,audiodev=audio0 \
   -netdev vmnet-host,id=net0 \
   -device virtio-net-pci,netdev=net0 \
-  -drive file=/Users/mohammad/Documents/GitHub/iso-builder/scripts/out/live-image-arm64.hybrid.iso,if=virtio,format=raw,readonly=on \
+  -drive file="$ISO",if=virtio,format=raw,readonly=on \
   -display cocoa,zoom-to-fit=on
