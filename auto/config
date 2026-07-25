@@ -10,6 +10,13 @@ lb config noauto \
     --parent-archive-areas "main contrib non-free non-free-firmware" \
     --binary-images iso-hybrid \
     --debian-installer none \
+    --updates true \
+    --backports false \
+    --security true \
+    --apt-recommends true \
+    --apt-source-archives false \
+    --memtest none \
+    --checksums sha256 \
     --mirror-bootstrap        "https://deb.debian.org/debian" \
     --mirror-binary           "https://deb.debian.org/debian" \
     --mirror-chroot-security  "https://deb.debian.org/debian-security" \
@@ -21,5 +28,5 @@ lb config noauto \
     --iso-application "Zurvan Linux" \
     --iso-publisher   "Zurvan Linux - https://zurvanlinux.org" \
     --iso-preparer    "Zurvan Linux live-build pipeline (iso-builder)" \
+    --iso-volume      "Zurvan Linux" \
     "${@}"
-

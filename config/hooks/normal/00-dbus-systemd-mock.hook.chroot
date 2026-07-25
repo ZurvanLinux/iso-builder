@@ -1,29 +1,21 @@
 #!/bin/sh
 set -e
 
-# Ensure the socket directory exists with proper permissions
+# Ensure a machine-id exists so package postinst scripts that talk to
+# D-Bus do not fail. We do NOT start a daemon — live-build's policy-rc.d
+# already blocks service starts, and most postinst hooks handle a missing
+# bus gracefully.
+
 mkdir -p /run/dbus
 chmod 755 /run/dbus
 
-# Start dbus-daemon if not already running
-if ! pgrep -x dbus-daemon > /dev/null; then
-    # Use dbus-uuidgen to ensure a machine-id exists, which dbus-daemon requires
-    if [ ! -f /var/lib/dbus/machine-id ]; then
-        mkdir -p /var/lib/dbus
+if [ ! -f /var/lib/dbus/machine-id ]; then
+    mkdir -p /var/lib/dbus
+    if command -v dbus-uuidgen >/dev/null 2>&1; then
         dbus-uuidgen > /var/lib/dbus/machine-id
+    elif [ -f /etc/machine-id ]; then
+        cp /etc/machine-id /var/lib/dbus/machine-id
+    else
+        echo "zurvan-build-$(date +%s)" > /var/lib/dbus/machine-id
     fi
-    
-    # Run dbus-daemon
-    dbus-daemon --system --fork
-    
-    # Wait for the socket to be created
-    for i in $(seq 1 10); do
-        if [ -S /run/dbus/system_bus_socket ]; then
-            break
-        fi
-        sleep 1
-    done
 fi
-
-# Export DBUS_SYSTEM_BUS_ADDRESS so packages can find it
-export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket

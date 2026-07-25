@@ -1,18 +1,21 @@
 #!/bin/sh
 set -e
 
-# Create a modprobe wrapper that never fails during build/chroot.
-# This prevents live-build failures due to missing modules in the chroot.
+# Wrap modprobe so it never fails inside the build chroot.
+# Many package postinst scripts call modprobe, which fails in a container
+# that lacks kernel modules. This diversion ensures those calls are harmless.
 
-if [ ! -f /sbin/modprobe.real ]; then
+MODPROBE_REAL=/sbin/modprobe.real
+
+if [ ! -f "${MODPROBE_REAL}" ]; then
     if [ -x /sbin/modprobe ]; then
-        dpkg-divert --add --rename --divert /sbin/modprobe.real /sbin/modprobe
+        dpkg-divert --add --rename --divert "${MODPROBE_REAL}" /sbin/modprobe
     fi
 fi
 
 cat > /sbin/modprobe << '__MODPROBE_WRAPPER_EOF__'
 #!/bin/sh
-# Always succeed in build/chroot environments
+# Build-time modprobe stub: try real binary, never fail.
 if [ -x /sbin/modprobe.real ]; then
     /sbin/modprobe.real "$@" 2>/dev/null || exit 0
 fi

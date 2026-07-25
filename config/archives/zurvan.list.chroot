@@ -1,0 +1,4 @@
+# Zurvan Linux custom APT repository
+# Uncomment when repo.zurvanlinux.org is live (Phase 2):
+#
+# deb [signed-by=/usr/share/keyrings/zurvan-archive-keyring.gpg] https://repo.zurvanlinux.org stable main

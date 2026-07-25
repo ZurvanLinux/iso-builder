@@ -11,6 +11,10 @@ binary/
 .cache/
 !config/hooks/binary/
 
+# generated arch-conditional package lists (created by scripts/gen-arch-packages.sh)
+config/package-lists/kernel-*.list.chroot
+config/package-lists/bootloaders-*.list.chroot
+
 # generated ISO images and metadata
 *.iso
 *.iso.zsync
@@ -18,5 +22,7 @@ binary/
 *.packages
 *.file-list*
 
-# logs
+# build output and logs
+scripts/out/
+scripts/lb-build-*.log
 *.log

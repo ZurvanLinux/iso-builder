@@ -34,15 +34,15 @@ jobs:
     container:
       image: ${{ matrix.arch == 'amd64'
                && 'debian:trixie@sha256:d63a99144861e4e460196ed93d07777490cbeab53ca660c434f2a589a6c50ea3'
-               || 'debian:trixie' }}
+               || 'debian:trixie@sha256:8ac748152418b19ff289badbf878c42561c5b0cd922ade5fe4fa37cf0769b521' }}
       options: --privileged
 
     steps:
       - name: Checkout live-build config
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Checkout zurvan-config
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           repository: ZurvanLinux/zurvan-config
           path: zurvan-config
@@ -61,7 +61,7 @@ jobs:
           df -h / /mnt 2>/dev/null || df -h /
 
       - name: Cache apt archives
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: /var/cache/apt/archives
           key: iso-builder-apt-${{ matrix.arch }}-${{ hashFiles('config/package-lists/*.list.chroot', 'auto/config') }}
@@ -81,11 +81,6 @@ jobs:
             GRUB_PKGS="grub-efi-arm64-bin"
             ISOLINUX_PKGS=""
           fi
-          if [ "$ARCH" = "arm64" ]; then
-            KERNEL_PKG="linux-image-arm64"
-          else
-            KERNEL_PKG="linux-image-amd64"
-          fi
           apt-get install -y --no-install-recommends \
             live-build debootstrap \
             squashfs-tools xorriso \
@@ -97,7 +92,12 @@ jobs:
             build-essential \
             dpkg-dev debhelper fakeroot
           dpkg-query -W live-build debootstrap squashfs-tools xorriso ${GRUB_PKGS} ${ISOLINUX_PKGS} rclone dpkg-dev debhelper fakeroot || true
-          printf '%s\n' "$KERNEL_PKG" > "config/package-lists/kernel-${ARCH}.list.chroot"
+
+      - name: Generate arch-conditional package lists
+        run: |
+          set -eux
+          ARCH="${ZURVAN_ARCH:-amd64}"
+          bash scripts/gen-arch-packages.sh "${ARCH}" config/package-lists
 
 
       - name: Configure (lb config)
@@ -157,7 +157,7 @@ jobs:
           ls -la
 
       - name: Upload ISO as workflow artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: zurvan-live-iso-${{ matrix.arch }}
           path: out/
@@ -165,7 +165,7 @@ jobs:
           retention-days: 14
 
       - name: Upload zurvan-base-files deb artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: zurvan-base-files-deb-${{ matrix.arch }}
           path: packages/zurvan-base-files_*.deb
@@ -174,7 +174,7 @@ jobs:
 
       - name: Upload lb build logs
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: lb-build-logs
           path: "lb-build-*.log"
@@ -260,11 +260,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Download build artifacts
         id: dl
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
@@ -363,10 +363,10 @@ jobs:
       options: --privileged
     steps:
       - name: Checkout live-build config
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Checkout zurvan-config
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           repository: ZurvanLinux/zurvan-config
           path: zurvan-config
@@ -382,7 +382,7 @@ jobs:
           fi
 
       - name: Download zurvan-base-files deb artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           name: zurvan-base-files-deb-${{ matrix.arch }}
           path: /tmp/artifact
@@ -407,7 +407,7 @@ jobs:
 
       - name: Upload chroot logs on failure
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: upgrade-test-logs
           path: /tmp/zurvan-upgrade-chroot/**

@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-systemctl enable ssh.service
+systemctl enable ssh.service 2>/dev/null || true
 
 # Ensure live user 'user' has a default password ('zurvan') for SSH password auth & ssh-copy-id
 if id "user" >/dev/null 2>&1; then
