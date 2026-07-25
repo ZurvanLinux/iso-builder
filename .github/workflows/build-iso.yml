@@ -32,7 +32,7 @@ jobs:
       # Mirror of build.env — update both when bumping Debian.
       DEBIAN_IMAGE_AMD64: debian:trixie@sha256:d63a99144861e4e460196ed93d07777490cbeab53ca660c434f2a589a6c50ea3
       DEBIAN_IMAGE_ARM64: debian:trixie@sha256:8ac748152418b19ff289badbf878c42561c5b0cd922ade5fe4fa37cf0769b521
-      ZURVAN_CONFIG_REF: c42d342e58c06cb182882d516f3380af61ecee88
+      ZURVAN_CONFIG_REF: f6f1a83
       ZURVAN_ARCH: ${{ matrix.arch }}
     container:
       image: ${{ matrix.arch == 'amd64' && env.DEBIAN_IMAGE_AMD64 || env.DEBIAN_IMAGE_ARM64 }}
@@ -45,12 +45,9 @@ jobs:
       - name: Load build configuration from build.env
         run: |
           set -eu
-          # Source the centralized config and export to GITHUB_ENV
-          # so all subsequent steps use the same values as local builds.
           . ./build.env
           for var in DEBIAN_CODENAME MIRROR_MAIN MIRROR_SECURITY \
-                     ARCHIVE_AREAS ISO_APPLICATION ISO_PUBLISHER \
-                     ISO_PREPARER ISO_VOLUME ZURVAN_CONFIG_REPO; do
+                     ARCHIVE_AREAS ISO_PREPARER ZURVAN_CONFIG_REPO; do
             echo "${var}=${!var}" >> "$GITHUB_ENV"
           done
 
@@ -60,6 +57,11 @@ jobs:
           repository: ${{ env.ZURVAN_CONFIG_REPO }}
           path: zurvan-config
           ref: ${{ env.ZURVAN_CONFIG_REF }}
+
+      - name: Apply Zurvan configuration
+        run: |
+          set -eu
+          bash scripts/apply-zurvan-config.sh
 
       - name: Provision loop devices
         run: |
@@ -370,7 +372,7 @@ jobs:
       # Mirror of build.env — update both when bumping Debian.
       DEBIAN_IMAGE_AMD64: debian:trixie@sha256:d63a99144861e4e460196ed93d07777490cbeab53ca660c434f2a589a6c50ea3
       DEBIAN_IMAGE_ARM64: debian:trixie@sha256:8ac748152418b19ff289badbf878c42561c5b0cd922ade5fe4fa37cf0769b521
-      ZURVAN_CONFIG_REF: c42d342e58c06cb182882d516f3380af61ecee88
+      ZURVAN_CONFIG_REF: f6f1a83
       ZURVAN_ARCH: ${{ matrix.arch }}
     container:
       image: ${{ matrix.arch == 'amd64' && env.DEBIAN_IMAGE_AMD64 || env.DEBIAN_IMAGE_ARM64 }}

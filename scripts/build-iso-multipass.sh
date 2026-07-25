@@ -75,6 +75,7 @@ COPYFILE_DISABLE=1 tar czf "${TARBALL}" \
     --exclude='scripts/lb-build-*' \
     --exclude='.kilo' \
     --exclude='.DS_Store' \
+    --exclude='zurvan-config' \
     -C "${SCRIPT_DIR}" .
 
 echo "Transferring tarball to VM..."
@@ -83,6 +84,13 @@ multipass transfer "${TARBALL}" "${VM_NAME}:/tmp/zurvan-iso-builder.tar.gz"
 echo "Extracting in VM..."
 multipass exec "${VM_NAME}" -- bash -c "cd ${GUEST_DIR} && tar xzf /tmp/zurvan-iso-builder.tar.gz && rm -f /tmp/zurvan-iso-builder.tar.gz"
 rm -f "${TARBALL}"
+
+echo "=== 4b. Cloning zurvan-config in VM == "
+multipass exec "${VM_NAME}" -- bash -c "
+    cd ${GUEST_DIR} && \
+    git clone 'https://github.com/${ZURVAN_CONFIG_REPO}' zurvan-config 2>/dev/null || true && \
+    (cd zurvan-config && git checkout '${ZURVAN_CONFIG_REF}') || true
+"
 
 echo "=== 5. Running Debian ${DEBIAN_CODENAME} container build (${ARCH}) == "
 if [ "${ARCH}" = "amd64" ]; then
@@ -109,6 +117,7 @@ multipass exec "${VM_NAME}" -- bash -c "
                 curl jq \
                 build-essential \
                 dpkg-dev debhelper fakeroot
+            bash scripts/apply-zurvan-config.sh
             bash scripts/gen-arch-packages.sh ${ARCH} config/package-lists
             bash auto/config ${ARCH}
             lb clean --purge || true

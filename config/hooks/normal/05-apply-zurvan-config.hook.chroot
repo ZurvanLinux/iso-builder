@@ -1,0 +1,76 @@
+#!/bin/sh
+set -e
+
+# Source config if present (fallbacks apply if missing)
+CFG_DIR="/usr/share/zurvan/config"
+[ -f "${CFG_DIR}/localization" ]  && . "${CFG_DIR}/localization"
+[ -f "${CFG_DIR}/live-session" ]  && . "${CFG_DIR}/live-session"
+
+# Defaults (NOT source of truth — overridden by zurvan-config)
+TIMEZONE="${TIMEZONE:-Asia/Tehran}"
+LANG="${LANG:-fa_IR.UTF-8}"
+LOCALES="${LOCALES:-fa_IR.UTF-8 en_US.UTF-8}"
+KEYMAP="${KEYMAP:-us}"
+XKBMODEL="${XKBMODEL:-pc105}"
+XKBLAYOUT="${XKBLAYOUT:-us,ir}"
+XKBVARIANT="${XKBVARIANT:-,}"
+XKBOPTIONS="${XKBOPTIONS:-grp:alt_shift_toggle,grp:win_space_toggle}"
+BACKSPACE="${BACKSPACE:-yes}"
+LIVE_USER="${LIVE_USER:-user}"
+LIVE_USER_PASSWORD="${LIVE_USER_PASSWORD:-zurvan}"
+SDDM_AUTOLOGIN_SESSION="${SDDM_AUTOLOGIN_SESSION:-plasma}"
+SDDM_THEME="${SDDM_THEME:-breeze}"
+
+# ── Locale ───────────────────────────────────────────
+for loc in ${LOCALES}; do
+    entry="${loc} UTF-8"
+    if ! grep -qF "${entry}" /etc/locale.gen; then
+        echo "${entry}" >> /etc/locale.gen
+    fi
+done
+locale-gen
+
+cat > /etc/default/locale << EOF
+LANG=${LANG}
+EOF
+
+# ── Timezone ─────────────────────────────────────────
+echo "${TIMEZONE}" > /etc/timezone
+rm -f /etc/localtime
+ln -s "/usr/share/zoneinfo/${TIMEZONE}" /etc/localtime
+
+# ── Keyboard ─────────────────────────────────────────
+cat > /etc/default/keyboard << EOF
+KEYMAP=${KEYMAP}
+XKBMODEL="${XKBMODEL}"
+XKBLAYOUT="${XKBLAYOUT}"
+XKBVARIANT="${XKBVARIANT}"
+XKBOPTIONS="${XKBOPTIONS}"
+BACKSPACE="${BACKSPACE}"
+EOF
+
+# ── SDDM autologin + theme ──────────────────────────
+mkdir -p /etc/sddm.conf.d
+cat > /etc/sddm.conf.d/99-zurvan.conf << EOF
+[Autologin]
+User=${LIVE_USER}
+Session=${SDDM_AUTOLOGIN_SESSION}
+
+[Theme]
+Current=${SDDM_THEME}
+EOF
+
+# ── SSH: enable + live password ─────────────────────
+systemctl enable ssh.service 2>/dev/null || true
+if id "${LIVE_USER}" >/dev/null 2>&1; then
+    echo "${LIVE_USER}:${LIVE_USER_PASSWORD}" | chpasswd || true
+fi
+if [ -d /etc/ssh/sshd_config.d ]; then
+    cat > /etc/ssh/sshd_config.d/99-zurvan-live.conf << 'EOF'
+PasswordAuthentication yes
+KbdInteractiveAuthentication yes
+AcceptEnv LANG LC_*
+EOF
+fi
+
+exit 0

@@ -13,7 +13,12 @@ help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 
+fetch: ## Clone/update zurvan-config
+	bash scripts/fetch-zurvan-config.sh
+
 config: ## Run lb config (override ARCH=, DEBIAN_CODENAME=, etc.)
+	bash scripts/fetch-zurvan-config.sh 2>/dev/null || true
+	bash scripts/apply-zurvan-config.sh || true
 	bash scripts/gen-arch-packages.sh $(ARCH) config/package-lists
 	bash auto/config $(ARCH)
 

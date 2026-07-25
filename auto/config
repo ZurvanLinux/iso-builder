@@ -6,6 +6,9 @@ SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 # shellcheck source=../build.env
 . "${SCRIPT_DIR}/build.env"
 
+# Source generated ISO metadata from zurvan-config (if available)
+[ -f "${SCRIPT_DIR}/.zurvan-env" ] && . "${SCRIPT_DIR}/.zurvan-env"
+
 ARCH="${1:-${ARCH:-amd64}}"
 
 lb config noauto \
@@ -30,8 +33,8 @@ lb config noauto \
     --parent-mirror-binary         "${MIRROR_MAIN}" \
     --parent-mirror-chroot-security    "${MIRROR_SECURITY}" \
     --parent-mirror-binary-security    "${MIRROR_SECURITY}" \
-    --iso-application "${ISO_APPLICATION}" \
-    --iso-publisher   "${ISO_PUBLISHER}" \
+    --iso-application "${ISO_APPLICATION:-Zurvan Linux}" \
+    --iso-publisher   "${ISO_PUBLISHER:-Zurvan Linux - https://zurvanlinux.org}" \
     --iso-preparer    "${ISO_PREPARER}" \
-    --iso-volume      "${ISO_VOLUME}" \
+    --iso-volume      "${ISO_VOLUME:-Zurvan Linux}" \
     "${@}"

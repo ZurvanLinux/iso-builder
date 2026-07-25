@@ -15,6 +15,15 @@ binary/
 config/package-lists/kernel-*.list.chroot
 config/package-lists/bootloaders-*.list.chroot
 
+# cloned zurvan-config (fetched at build time)
+zurvan-config/
+
+# generated ISO metadata (written by apply-zurvan-config.sh, sourced by auto/config)
+.zurvan-env
+
+# generated zurvan config (copied from zurvan-config by apply-zurvan-config.sh)
+config/includes.chroot/usr/share/zurvan/config/
+
 # generated ISO images and metadata
 *.iso
 *.iso.zsync

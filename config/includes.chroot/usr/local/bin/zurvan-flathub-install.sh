@@ -11,12 +11,17 @@ fi
 flatpak remote-add --if-not-exists flathub \
     https://dl.flathub.org/repo/flathub.flatpakrepo || true
 
-FLATHUB_APPS='
+APPS_FILE="/usr/share/zurvan/config/flathub-apps"
+if [ -f "$APPS_FILE" ]; then
+    FLATHUB_APPS=$(grep -v '^#' "$APPS_FILE" | grep -v '^$')
+else
+    FLATHUB_APPS='
 com.visualstudio.code
 com.obsproject.Studio
 org.gahshomar.Gahshomar
 com.leinardi.gst
-'
+    '
+fi
 
 for app in ${FLATHUB_APPS}; do
     echo "Installing ${app} from Flathub..."

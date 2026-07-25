@@ -48,7 +48,16 @@ The active arch is controlled by `ZURVAN_ARCH` in the workflow matrix.
 ## Repository layout
 
 ```
-build.env                        # single source of truth: codename, mirrors, images, ISO metadata
+build.env                        # Debian infra + pinned images (NOT Zurvan identity)
+zurvan-config/                    # single source of truth for Zurvan identity/localization/branding
+  localization                    # timezone, locale, keyboard, font
+  live-session                    # live user credentials, SDDM theme
+  iso-metadata                    # ISO application/publisher/volume labels
+  flathub-apps                    # default Flatpak apps
+  repo-urls                       # APT repo URL, website, download origin
+  branding                        # theme colors, logo path
+  repo-metadata                   # APT repo key ID, components
+  versions/akaran/dist-version    # version, codename
 auto/
   config                          # -> lb config (sources build.env, arch-conditional)
 config/
@@ -167,28 +176,45 @@ Plasma desktop, Vazirmatn renders Persian, `us`/`ir` toggle + ZWNJ work,
 Asia/Tehran auto-applied, Wi-Fi firmware loads, Flathub visible in Discover,
 Calamares launches, `apt update` is clean. Tag `v0.2.0-pre` once verified.
 
-## Bump runbook: new Debian stable release
+### Bump runbook: new Debian stable release and/or new zurvan-config version
 
-Zurvan pins the build to a Debian **codename** (`trixie` today) rather than the
-rolling `stable` suite — for reproducibility and a stable security-suite path
-(`trixie-security`). When Debian releases a new stable (e.g. trixie → forchy):
+Debian infrastructure values (codename, mirrors, images, archive areas)
+live in `build.env`. Zurvan identity values (ISO labels, locale, keyboard,
+SDDM theme) live in `zurvan-config` — the single source of truth for
+Zurvan-specific configuration.
 
-All build parameters are centralized in **`build.env`** — the single source of
-truth sourced by `auto/config`, `scripts/build-iso-multipass.sh`, `Makefile`,
-and the CI workflow.
+#### New Debian stable release
 
 1. Update `DEBIAN_CODENAME` in `build.env` to the new codename.
 2. Resolve new pinned image digests and update `DEBIAN_IMAGE_AMD64` /
    `DEBIAN_IMAGE_ARM64` in **both** `build.env` and the `env:` blocks in
    `.github/workflows/build-iso.yml` (CI cannot source shell files before the
    container starts, so the image values are mirrored there).
-3. Bump `ZURVAN_CONFIG_REF` in `build.env` to the new
-   `ZurvanLinux/zurvan-config` `main` HEAD SHA.
-4. Re-verify every package name in `config/package-lists/` against the new suite
-   via Debian madison — package names drift across Debian + Plasma majors (see
-   the substitution notes in `05-plasma.list.chroot`).
- 5. Update the "(pinned to the `<codename>` codename)" note in this README.
- 6. Trigger `build-iso.yml`, boot-test in QEMU/KVM + VirtualBox (BIOS + UEFI),
+3. Update `ZURVAN_CONFIG_REF` in `build.env` and the CI `env:` blocks to
+   the new `ZurvanLinux/zurvan-config` commit SHA.
+4. Re-verify every package name in `config/package-lists/` against the new
+   suite via Debian madison — package names drift across Debian + Plasma
+   majors (see the substitution notes in `05-plasma.list.chroot`).
+5. Update the "(pinned to the `<codename>` codename)" note in this README.
+6. Trigger `build-iso.yml`, boot-test in QEMU/KVM + VirtualBox (BIOS + UEFI),
+
+#### Bumping zurvan-config
+
+1. Make changes in `ZurvanLinux/zurvan-config` (or use `scripts/fetch-zurvan-config.sh`).
+   The config files control ISO metadata, locale/keyboard/language defaults,
+   SDDM theme, and live user credentials.
+2. Commit and push the new `zurvan-config` commit SHA.
+3. Update `ZURVAN_CONFIG_REF` in `build.env` and the CI `env:` blocks.
+
+#### Quick reference — what controls what
+
+| Setting | Source |
+|---|---|
+| Debian codename, mirrors, images | `build.env` |
+| ISO_APPLICATION, ISO_PUBLISHER, ISO_VOLUME | `zurvan-config/iso-metadata` |
+| Keyboard, locale, timezone, SDDM, password | `zurvan-config/localization` + `zurvan-config/live-session` |
+| Live-build options (binary images, APT recommends…) | `build.env` |
+| ISO_PREPARER (pipeline identity) | `build.env` |
 
 ## Out of scope here
 
