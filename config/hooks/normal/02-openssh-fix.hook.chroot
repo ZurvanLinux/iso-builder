@@ -6,6 +6,7 @@ set -e
 # - Live ISOs are ephemeral and not intended for production use
 # - No SSH keys are pre-configured for new users
 # - Calamares installer (if used) should prompt for a real password
+# To change: set LIVE_USER_PASSWORD in build.env, or edit this hook.
 # The live SSH config is in a drop-in so the installed system's sshd_config
 # remains untouched.
 
