@@ -20,7 +20,7 @@ com.visualstudio.code
 com.obsproject.Studio
 org.gahshomar.Gahshomar
 com.leinardi.gst
-    '
+'
 fi
 
 for app in ${FLATHUB_APPS}; do

@@ -57,7 +57,8 @@ EOF
 for rcfile in /home/user/.bashrc /home/user/.zshrc; do
     if [ -f "${rcfile}" ]; then
         grep -qF 'LC_TIME=' "${rcfile}" 2>/dev/null || \
-            echo "export LC_TIME=${LC_TIME}" >> "${rcfile}"
+            printf 'export LC_TIME=%s\nexport LC_IDENTIFICATION=%s\nexport LC_MEASUREMENT=%s\n' \
+                "${LC_TIME}" "${LC_IDENTIFICATION}" "${LC_MEASUREMENT}" >> "${rcfile}"
     fi
 done
 
