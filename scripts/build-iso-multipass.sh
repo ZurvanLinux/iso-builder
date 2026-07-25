@@ -36,9 +36,16 @@ else
     fi
 fi
 
-echo "Waiting for VM SSH to become ready..."
+echo "Waiting for VM SSH to become ready (max 3 minutes)..."
+TIMEOUT=180
+ELAPSED=0
 while ! multipass exec "${VM_NAME}" -- true 2>/dev/null; do
     sleep 2
+    ELAPSED=$((ELAPSED + 2))
+    if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
+        echo "error: VM SSH not ready after ${TIMEOUT}s" >&2
+        exit 1
+    fi
 done
 
 echo "=== 3. Installing Docker in VM == "
@@ -123,8 +130,11 @@ multipass exec "${VM_NAME}" -- bash -c "
 
 echo "=== 6. Copying build artifacts from VM to host == "
 mkdir -p "${SCRIPT_DIR}/scripts/out"
-multipass transfer "${VM_NAME}:${GUEST_DIR}/live-image-${ARCH}.hybrid.iso" "${SCRIPT_DIR}/scripts/out/" || echo "ISO not found in VM"
-multipass transfer "${VM_NAME}:${GUEST_DIR}/lb-build-1.log" "${SCRIPT_DIR}/scripts/" || echo "Log not found in VM"
+if ! multipass transfer "${VM_NAME}:${GUEST_DIR}/live-image-${ARCH}.hybrid.iso" "${SCRIPT_DIR}/scripts/out/"; then
+    echo "error: ISO not found in VM — build may have failed" >&2
+    exit 1
+fi
+multipass transfer "${VM_NAME}:${GUEST_DIR}/lb-build-1.log" "${SCRIPT_DIR}/scripts/" || echo "warning: Log not found in VM" >&2
 
 echo "=== 7. Build complete! Artifacts collected: == "
 ls -lah "${SCRIPT_DIR}/scripts/out/" "${SCRIPT_DIR}/scripts/lb-build-"*.log 2>/dev/null || true

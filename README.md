@@ -19,10 +19,7 @@ baked in.
 > behavior on hosted runners) is superseded by this milestone. The build pipeline
 > itself is unchanged and proven.
 
-### Debian Stable / Plasma substitutions vs. `package-manifest.md`
-
-The spec was written against package names that drifted in current Debian Stable. Substitutions
-are documented inline in each list and summarized here:
+### Debian Stable / Plasma substitutions
 
 | Manifest name | In ISO | Reason |
 |---|---|---|
@@ -163,7 +160,7 @@ qemu-system-aarch64 -m 4G -M virt -cpu cortex-a72 -bios /usr/share/qemu-efi-aarc
 > If the arm64 image fails to boot, verify the ISO structure with
 > `xorriso -indev live-image-arm64.hybrid.iso -report_el_torito as_mkisofs`.
 
-## M1.1b exit criteria (release gate; testing-qa-checklist.md)
+## M1.1b exit criteria (release gate)
 
 Builds must pass in **both** QEMU/KVM and VirtualBox (BIOS + UEFI): reaches the
 Plasma desktop, Vazirmatn renders Persian, `us`/`ir` toggle + ZWNJ work,
@@ -190,9 +187,8 @@ and the CI workflow.
 4. Re-verify every package name in `config/package-lists/` against the new suite
    via Debian madison — package names drift across Debian + Plasma majors (see
    the substitution notes in `05-plasma.list.chroot`).
-5. Update the "(pinned to the `<codename>` codename)" note in this README.
-6. Trigger `build-iso.yml`, boot-test in QEMU/KVM + VirtualBox (BIOS + UEFI),
-   and run the full `testing-qa-checklist.md` before tagging a pre-release.
+ 5. Update the "(pinned to the `<codename>` codename)" note in this README.
+ 6. Trigger `build-iso.yml`, boot-test in QEMU/KVM + VirtualBox (BIOS + UEFI),
 
 ## Out of scope here
 
