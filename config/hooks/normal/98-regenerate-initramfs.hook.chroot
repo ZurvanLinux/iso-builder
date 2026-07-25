@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+# Regenerate initramfs after all packages are installed.
+# This ensures live-boot hooks are included in the initrd.
+mkdir -p /boot
+if command -v update-initramfs >/dev/null 2>&1; then
+    update-initramfs -u -k all || true
+fi
