@@ -1,34 +1,22 @@
 #!/bin/sh
 set -e
 
-if [ -x /sbin/modprobe ] && [ ! -f /sbin/modprobe.real ]; then
-    dpkg-divert --add --rename --divert /sbin/modprobe.real /sbin/modprobe
-    cat << 'EOF' > /sbin/modprobe
-#!/bin/sh
-#!/bin/sh
-# Enhanced modprobe wrapper: always suppress errors in chroot/build environments
+# Create a modprobe wrapper that never fails during build/chroot.
+# This prevents live-build failures due to missing modules in the chroot.
 
-# If modprobe or its real executable is not available, or if it's already wrapped,
-# we ensure it always succeeds. This prevents build failures due to missing modules.
-if [ ! -x /sbin/modprobe ] || [ ! -f /sbin/modprobe.real ]; then
-    # Ensure /sbin exists
-    mkdir -p /sbin
-    # Divert the real modprobe if it exists, and place our wrapper
-    if [ -e /sbin/modprobe ]; then
+if [ ! -f /sbin/modprobe.real ]; then
+    if [ -x /sbin/modprobe ]; then
         dpkg-divert --add --rename --divert /sbin/modprobe.real /sbin/modprobe
     fi
-    cat << 'EOF' > /sbin/modprobe
-#!/bin/sh
-# Always succeed in build/chroot environments
-exit 0
-EOF
-    chmod +x /sbin/modprobe
-else
-    # If /sbin/modprobe.real exists, the wrapper is already in place.
-    # Ensure it always exits successfully for any modprobe call.
-    sed -i 's/|| exit 0$/|| true/' /sbin/modprobe
 fi
 
-EOF
-    chmod +x /sbin/modprobe
+cat > /sbin/modprobe << '__MODPROBE_WRAPPER_EOF__'
+#!/bin/sh
+# Always succeed in build/chroot environments
+if [ -x /sbin/modprobe.real ]; then
+    /sbin/modprobe.real "$@" 2>/dev/null || exit 0
 fi
+exit 0
+__MODPROBE_WRAPPER_EOF__
+
+chmod +x /sbin/modprobe
