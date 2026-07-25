@@ -51,8 +51,9 @@ The active arch is controlled by `ZURVAN_ARCH` in the workflow matrix.
 ## Repository layout
 
 ```
+build.env                        # single source of truth: codename, mirrors, images, ISO metadata
 auto/
-  config                          # -> lb config (arch-conditional, all archive areas, ISO metadata)
+  config                          # -> lb config (sources build.env, arch-conditional)
 config/
   archives/                       # Zurvan custom APT repo config (commented until Phase 2)
   package-lists/                  # one file per package-manifest.md section (§1–§15)
@@ -173,14 +174,22 @@ Calamares launches, `apt update` is clean. Tag `v0.2.0-pre` once verified.
 
 Zurvan pins the build to a Debian **codename** (`trixie` today) rather than the
 rolling `stable` suite — for reproducibility and a stable security-suite path
-(`trixie-security`). When Debian releases a new stable (e.g. trixie → forky):
+(`trixie-security`). When Debian releases a new stable (e.g. trixie → forchy):
 
-1. Update `--distribution` in `auto/config` to the new codename.
-2. Repin **both** build containers in `.github/workflows/build-iso.yml` by resolving the
-   new manifest digests (`docker pull debian:<codename>` or the registry API) and updating
-   the `debian:<codename>@sha256:…` entries for amd64 and arm64.
-3. Bump the `ZURVAN_CONFIG_REF` env in `.github/workflows/build-iso.yml` (both `build` and `test-installed-upgrade`) to the new `ZurvanLinux/zurvan-config` `main` HEAD SHA.
-4. Re-verify every package name in `config/package-lists/` against the new suite via Debian madison — package names drift across Debian + Plasma majors (see the substitution notes in `05-plasma.list.chroot`).
+All build parameters are centralized in **`build.env`** — the single source of
+truth sourced by `auto/config`, `scripts/build-iso-multipass.sh`, `Makefile`,
+and the CI workflow.
+
+1. Update `DEBIAN_CODENAME` in `build.env` to the new codename.
+2. Resolve new pinned image digests and update `DEBIAN_IMAGE_AMD64` /
+   `DEBIAN_IMAGE_ARM64` in **both** `build.env` and the `env:` blocks in
+   `.github/workflows/build-iso.yml` (CI cannot source shell files before the
+   container starts, so the image values are mirrored there).
+3. Bump `ZURVAN_CONFIG_REF` in `build.env` to the new
+   `ZurvanLinux/zurvan-config` `main` HEAD SHA.
+4. Re-verify every package name in `config/package-lists/` against the new suite
+   via Debian madison — package names drift across Debian + Plasma majors (see
+   the substitution notes in `05-plasma.list.chroot`).
 5. Update the "(pinned to the `<codename>` codename)" note in this README.
 6. Trigger `build-iso.yml`, boot-test in QEMU/KVM + VirtualBox (BIOS + UEFI),
    and run the full `testing-qa-checklist.md` before tagging a pre-release.

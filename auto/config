@@ -1,32 +1,37 @@
 #!/bin/sh
 set -e
 
-ARCH="${1:-${ZURVAN_ARCH:-amd64}}"
+# Source centralized build configuration (single source of truth).
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=../build.env
+. "${SCRIPT_DIR}/build.env"
+
+ARCH="${1:-${ARCH:-amd64}}"
 
 lb config noauto \
-    --distribution trixie \
+    --distribution "${DEBIAN_CODENAME}" \
     --architecture "${ARCH}" \
-    --archive-areas "main contrib non-free non-free-firmware" \
-    --parent-archive-areas "main contrib non-free non-free-firmware" \
-    --binary-images iso-hybrid \
+    --archive-areas "${ARCHIVE_AREAS}" \
+    --parent-archive-areas "${ARCHIVE_AREAS}" \
+    --binary-images "${BINARY_IMAGES}" \
     --debian-installer none \
-    --updates true \
-    --backports false \
-    --security true \
-    --apt-recommends true \
+    --updates "${UPDATES}" \
+    --backports "${BACKPORTS}" \
+    --security "${SECURITY}" \
+    --apt-recommends "${APT_RECOMMENDS}" \
     --apt-source-archives false \
-    --memtest none \
-    --checksums sha256 \
-    --mirror-bootstrap        "https://deb.debian.org/debian" \
-    --mirror-binary           "https://deb.debian.org/debian" \
-    --mirror-chroot-security  "https://deb.debian.org/debian-security" \
-    --mirror-binary-security  "https://deb.debian.org/debian-security" \
-    --parent-mirror-bootstrap "https://deb.debian.org/debian" \
-    --parent-mirror-binary    "https://deb.debian.org/debian" \
-    --parent-mirror-chroot-security "https://deb.debian.org/debian-security" \
-    --parent-mirror-binary-security "https://deb.debian.org/debian-security" \
-    --iso-application "Zurvan Linux" \
-    --iso-publisher   "Zurvan Linux - https://zurvanlinux.org" \
-    --iso-preparer    "Zurvan Linux live-build pipeline (iso-builder)" \
-    --iso-volume      "Zurvan Linux" \
+    --memtest "${MEMTEST}" \
+    --checksums "${CHECKSUMS}" \
+    --mirror-bootstrap             "${MIRROR_MAIN}" \
+    --mirror-binary                "${MIRROR_MAIN}" \
+    --mirror-chroot-security       "${MIRROR_SECURITY}" \
+    --mirror-binary-security       "${MIRROR_SECURITY}" \
+    --parent-mirror-bootstrap      "${MIRROR_MAIN}" \
+    --parent-mirror-binary         "${MIRROR_MAIN}" \
+    --parent-mirror-chroot-security    "${MIRROR_SECURITY}" \
+    --parent-mirror-binary-security    "${MIRROR_SECURITY}" \
+    --iso-application "${ISO_APPLICATION}" \
+    --iso-publisher   "${ISO_PUBLISHER}" \
+    --iso-preparer    "${ISO_PREPARER}" \
+    --iso-volume      "${ISO_VOLUME}" \
     "${@}"

@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Source centralized build configuration (single source of truth).
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=../build.env
+. "${SCRIPT_DIR}/build.env"
+
 VM_NAME="zurvan-builder"
 GUEST_DIR="/home/ubuntu/iso-builder"
-ARCH="${ZURVAN_ARCH:-arm64}"
 
 echo "=== 1. Checking Multipass == "
 if ! command -v multipass &> /dev/null; then
@@ -45,13 +49,11 @@ multipass exec "${VM_NAME}" -- bash -c "
 "
 
 echo "=== 4. Transferring local working tree to VM == "
-# Remove stale build dir and recreate
 multipass exec "${VM_NAME}" -- bash -c "
     sudo mv ${GUEST_DIR} ${GUEST_DIR}.old.\$(date +%s) 2>/dev/null || true
     mkdir -p ${GUEST_DIR}
 "
 
-# Create a tarball of the local repo (excluding build artifacts) and transfer it
 TARBALL="/tmp/zurvan-iso-builder.tar.gz"
 echo "Creating local tarball..."
 COPYFILE_DISABLE=1 tar czf "${TARBALL}" \
@@ -66,7 +68,7 @@ COPYFILE_DISABLE=1 tar czf "${TARBALL}" \
     --exclude='scripts/lb-build-*' \
     --exclude='.kilo' \
     --exclude='.DS_Store' \
-    -C "$(pwd)" .
+    -C "${SCRIPT_DIR}" .
 
 echo "Transferring tarball to VM..."
 multipass transfer "${TARBALL}" "${VM_NAME}:/tmp/zurvan-iso-builder.tar.gz"
@@ -75,18 +77,19 @@ echo "Extracting in VM..."
 multipass exec "${VM_NAME}" -- bash -c "cd ${GUEST_DIR} && tar xzf /tmp/zurvan-iso-builder.tar.gz && rm -f /tmp/zurvan-iso-builder.tar.gz"
 rm -f "${TARBALL}"
 
-echo "=== 5. Running native Debian Trixie container build (${ARCH}) == "
-GRUB_PKGS=""
+echo "=== 5. Running Debian ${DEBIAN_CODENAME} container build (${ARCH}) == "
 if [ "${ARCH}" = "amd64" ]; then
     GRUB_PKGS="grub-pc-bin grub-efi-amd64-bin isolinux syslinux syslinux-common"
+    CONTAINER_IMAGE="${DEBIAN_IMAGE_AMD64}"
 else
     GRUB_PKGS="grub-efi-arm64-bin"
+    CONTAINER_IMAGE="${DEBIAN_IMAGE_ARM64}"
 fi
 
 multipass exec "${VM_NAME}" -- bash -c "
     cd ${GUEST_DIR} && \
     sudo docker run --rm --platform linux/${ARCH} --privileged -v \$(pwd):/workspace -w /workspace \
-        debian:trixie \
+        '${CONTAINER_IMAGE}' \
         bash -c '
             set -eux
             export DEBIAN_FRONTEND=noninteractive
@@ -119,10 +122,10 @@ multipass exec "${VM_NAME}" -- bash -c "
 "
 
 echo "=== 6. Copying build artifacts from VM to host == "
-mkdir -p ./scripts/out
-multipass transfer "${VM_NAME}:${GUEST_DIR}/live-image-${ARCH}.hybrid.iso" "./scripts/out/" || echo "ISO not found in VM"
-multipass transfer "${VM_NAME}:${GUEST_DIR}/lb-build-1.log" "./scripts/" || echo "Log not found in VM"
+mkdir -p "${SCRIPT_DIR}/scripts/out"
+multipass transfer "${VM_NAME}:${GUEST_DIR}/live-image-${ARCH}.hybrid.iso" "${SCRIPT_DIR}/scripts/out/" || echo "ISO not found in VM"
+multipass transfer "${VM_NAME}:${GUEST_DIR}/lb-build-1.log" "${SCRIPT_DIR}/scripts/" || echo "Log not found in VM"
 
 echo "=== 7. Build complete! Artifacts collected: == "
-ls -lah ./scripts/out/ ./scripts/lb-build-*.log 2>/dev/null || true
+ls -lah "${SCRIPT_DIR}/scripts/out/" "${SCRIPT_DIR}/scripts/lb-build-"*.log 2>/dev/null || true
 echo "Done."

@@ -1,16 +1,23 @@
-.PHONY: help config build build-arm64 build-amd64 clean test lint qemu-arm64
+# Source centralized config; build.env provides all defaults.
+# Override with: make build ARCH=amd64 DEBIAN_CODENAME=forchy
+SHELL := /bin/bash
+
+# Load build.env if it exists (provides ARCH, DEBIAN_CODENAME, etc.)
+-include build.env
 
 ARCH ?= arm64
+
+.PHONY: help config build build-arm64 build-amd64 clean test lint qemu-arm64
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 
-config: ## Run lb config (set ARCH=amd64 or ARCH=arm64)
+config: ## Run lb config (override ARCH=, DEBIAN_CODENAME=, etc.)
 	bash scripts/gen-arch-packages.sh $(ARCH) config/package-lists
 	bash auto/config $(ARCH)
 
-build: config ## Build ISO (set ARCH=amd64 or ARCH=arm64)
+build: config ## Build ISO (override ARCH=amd64 or ARCH=arm64)
 	lb build
 
 build-arm64: ## Build arm64 ISO via Multipass
