@@ -1,0 +1,69 @@
+#!/bin/sh
+set -e
+
+# Derive a Zurvan SDDM login theme from the installed breeze theme and swap its
+# background for the prepared Zurvan lock-screen image. A self-contained copy
+# (rather than symlinking into breeze) survives later breeze removal and always
+# matches the installed SDDM/QML ABI.
+#
+# This hook also reconciles /etc/sddm.conf.d so Current= points at a theme that
+# actually exists (zurvan on success, breeze as a safe fallback). That keeps the
+# login screen working regardless of the package-install vs hook ordering in
+# live-build: if breeze is somehow not present when this runs, we never end up
+# with Current=zurvan pointing at a non-existent theme.
+
+BREEZE_SRC="/usr/share/sddm/themes/breeze"
+ZURVAN_THEME="/usr/share/sddm/themes/zurvan"
+ZURVAN_BG_SRC="/usr/share/zurvan/branding/sddm-background.png"
+SDDM_CONF="/etc/sddm.conf.d/99-zurvan.conf"
+
+set_sddm_theme() {
+    # $1 = theme name to pin as Current=
+    theme="$1"
+    mkdir -p /etc/sddm.conf.d
+    if [ -f "$SDDM_CONF" ] && grep -qE '^[[:space:]]*Current[[:space:]]*=' "$SDDM_CONF"; then
+        sed -i -E "s|^[[:space:]]*Current[[:space:]]*=.*|Current=${theme}|" "$SDDM_CONF"
+    elif [ -f "$SDDM_CONF" ]; then
+        sed -i -E "/^\[Theme\]/a Current=${theme}" "$SDDM_CONF"
+    else
+        cat > "$SDDM_CONF" <<EOF
+[Theme]
+Current=${theme}
+EOF
+    fi
+}
+
+if [ ! -d "$BREEZE_SRC" ]; then
+    echo "W: breeze SDDM theme ($BREEZE_SRC) not installed — falling back to breeze login theme."
+    set_sddm_theme breeze
+    exit 0
+fi
+if [ ! -f "$ZURVAN_BG_SRC" ]; then
+    echo "W: Zurvan SDDM background ($ZURVAN_BG_SRC) not found — falling back to breeze login theme."
+    set_sddm_theme breeze
+    exit 0
+fi
+
+# Fresh self-contained copy of the breeze theme
+rm -rf "$ZURVAN_THEME"
+cp -a "$BREEZE_SRC" "$ZURVAN_THEME"
+
+# Drop our lock-screen image into the theme dir
+cp -f "$ZURVAN_BG_SRC" "$ZURVAN_THEME/background.png"
+
+# Point theme.conf at background.png (breeze reads a `background=` key):
+# replace it if present, else inject under [General], else append a section.
+if grep -qE '^[[:space:]]*background[[:space:]]*=' "$ZURVAN_THEME/theme.conf"; then
+    sed -i -E 's|^[[:space:]]*background[[:space:]]*=.*|background=background.png|' "$ZURVAN_THEME/theme.conf"
+elif grep -qE '^[[:space:]]*\[General\][[:space:]]*$' "$ZURVAN_THEME/theme.conf"; then
+    sed -i -E '/^\[General\][[:space:]]*$/a background=background.png' "$ZURVAN_THEME/theme.conf"
+else
+    printf '[General]\nbackground=background.png\n' >> "$ZURVAN_THEME/theme.conf"
+fi
+
+# Pin the live SDDM config to the theme we just built
+set_sddm_theme zurvan
+
+echo "I: Zurvan SDDM theme derived from breeze at $ZURVAN_THEME (background=background.png)"
+
+exit 0

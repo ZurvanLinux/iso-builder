@@ -1,0 +1,21 @@
+{
+    "KPlugin": {
+        "Id": "Zurvan",
+        "Name": "Zurvan",
+        "Description": "Zurvan OS default cosmic wallpaper (dark)",
+        "Version": "1.0",
+        "Authors": [
+            {
+                "Name": "Zurvan OS",
+                "Email": "hello@zurvanlinux.org"
+            }
+        ],
+        "Category": "wallpaper",
+        "EnabledByDefault": true,
+        "License": "CC-BY-SA-4.0"
+    },
+    "Hidden": false,
+    "X-KDE-PluginInfo-Depends": [],
+    "X-KDE-WallpaperPackage": true,
+    "X-KDE-PlasmaImageWallpaper-AccentColor": "#00F2FE"
+}

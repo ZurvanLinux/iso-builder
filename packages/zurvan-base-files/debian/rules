@@ -69,6 +69,12 @@ override_dh_auto_install:
 	if [ -f usr/share/pixmaps/zurvan-logo.svg ]; then \
 		cp usr/share/pixmaps/zurvan-logo.svg $(DESTDIR)/usr/share/calamares/branding/zurvan/; \
 	fi; \
+	if [ -f usr/share/calamares/branding/zurvan/zurvan-banner.png ]; then \
+		cp usr/share/calamares/branding/zurvan/zurvan-banner.png $(DESTDIR)/usr/share/calamares/branding/zurvan/; \
+	fi; \
+	if [ -f usr/share/calamares/branding/zurvan/wallpaper.png ]; then \
+		cp usr/share/calamares/branding/zurvan/wallpaper.png $(DESTDIR)/usr/share/calamares/branding/zurvan/; \
+	fi; \
 	install -d $(DESTDIR)/usr/share/pixmaps; \
 	install -p -m 644 usr/share/pixmaps/* $(DESTDIR)/usr/share/pixmaps/; \
 	install -d $(DESTDIR)/usr/share/icons/hicolor/scalable/apps; \

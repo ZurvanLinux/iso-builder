@@ -1,0 +1,21 @@
+{
+    "KPlugin": {
+        "Id": "Zurvan-Light",
+        "Name": "Zurvan (Light)",
+        "Description": "Zurvan OS airy light-mode wallpaper",
+        "Version": "1.0",
+        "Authors": [
+            {
+                "Name": "Zurvan OS",
+                "Email": "hello@zurvanlinux.org"
+            }
+        ],
+        "Category": "wallpaper",
+        "EnabledByDefault": false,
+        "License": "CC-BY-SA-4.0"
+    },
+    "Hidden": false,
+    "X-KDE-PluginInfo-Depends": [],
+    "X-KDE-WallpaperPackage": true,
+    "X-KDE-PlasmaImageWallpaper-AccentColor": "#9D4EDD"
+}

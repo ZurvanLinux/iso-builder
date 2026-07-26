@@ -13,3 +13,5 @@ powerdevil
 kde-style-breeze
 bluedevil
 kde-inotify-survey
+# provides /usr/bin/qdbus6 — used by the first-login wallpaper enforcer
+qdbus-qt6

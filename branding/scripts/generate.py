@@ -38,10 +38,14 @@ GRUB_THEME       = f"{ROOT}/../config/includes.chroot/boot/grub/themes/zurvan"
 PLYMOUTH_THEME   = f"{ROOT}/../config/includes.chroot/usr/share/plymouth/themes/zurvan"
 BINARY_GRUB      = f"{ROOT}/../config/includes.binary/boot/grub"
 BINARY_ISOLINUX  = f"{ROOT}/../config/includes.binary/isolinux"
+WALLPAPERS_LIGHT = f"{ROOT}/../config/includes.chroot/usr/share/wallpapers/Zurvan-Light/contents/images"
+SDDM_BG_STAGING  = f"{ROOT}/../config/includes.chroot/usr/share/zurvan/branding"
+CALAMARES_BRAND  = f"{ROOT}/../packages/zurvan-base-files/usr/share/calamares/branding/zurvan"
+KSPLASH_IMAGES   = f"{ROOT}/../config/includes.chroot/usr/share/plasma/look-and-feel/org.zurvan.desktop/contents/splash/images"
 
 ANCHOR_IMAGE_PATH = f"{ASSETS_DIR}/zurvan_logo.png"
 
-for d in [ASSETS_DIR, PIXMAPS, WALLPAPERS, GRUB_THEME, PLYMOUTH_THEME, BINARY_GRUB, BINARY_ISOLINUX]:
+for d in [ASSETS_DIR, PIXMAPS, WALLPAPERS, WALLPAPERS_LIGHT, GRUB_THEME, PLYMOUTH_THEME, BINARY_GRUB, BINARY_ISOLINUX, SDDM_BG_STAGING, CALAMARES_BRAND, KSPLASH_IMAGES]:
     os.makedirs(d, exist_ok=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -121,6 +125,7 @@ ASSETS: dict[str, dict] = {
         "outputs": [
             f"{ASSETS_DIR}/zurvan_wallpaper_dark.png",
             f"{WALLPAPERS}/1920x1080.png",
+            f"{CALAMARES_BRAND}/wallpaper.png",
         ],
     },
 
@@ -137,6 +142,7 @@ ASSETS: dict[str, dict] = {
         ),
         "outputs": [
             f"{ASSETS_DIR}/zurvan_wallpaper_light.png",
+            f"{WALLPAPERS_LIGHT}/1920x1080.png",
         ],
     },
 
@@ -168,6 +174,7 @@ ASSETS: dict[str, dict] = {
         "outputs": [
             f"{ASSETS_DIR}/zurvan_plymouth.png",
             f"{PLYMOUTH_THEME}/watermark.png",
+            f"{KSPLASH_IMAGES}/zurvan.png",
         ],
     },
 
@@ -181,6 +188,7 @@ ASSETS: dict[str, dict] = {
         ),
         "outputs": [
             f"{ASSETS_DIR}/zurvan_calamares_banner.png",
+            f"{CALAMARES_BRAND}/zurvan-banner.png",
         ],
     },
 
@@ -194,6 +202,7 @@ ASSETS: dict[str, dict] = {
         ),
         "outputs": [
             f"{ASSETS_DIR}/zurvan_lockscreen.png",
+            f"{SDDM_BG_STAGING}/sddm-background.png",
         ],
     },
 }

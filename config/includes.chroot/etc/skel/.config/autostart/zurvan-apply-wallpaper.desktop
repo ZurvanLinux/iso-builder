@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Zurvan Wallpaper
+Comment=Apply the Zurvan desktop wallpaper on first login
+Exec=zurvan-apply-wallpaper.sh
+Icon=preferences-desktop-wallpaper
+NoDisplay=true
+Terminal=false
+X-KDE-autostart-phase=2

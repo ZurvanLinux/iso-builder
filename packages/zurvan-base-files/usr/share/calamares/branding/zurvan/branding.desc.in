@@ -10,10 +10,10 @@ bugreport=https://github.com/ZurvanLinux/iso-builder/issues
 [Image]
 productLogo=zurvan-logo.svg
 productIcon=zurvan-logo.svg
-productBanner=zurvan-logo.svg
-welcomeBackgroundImage=
-wallpaper=
-wallpapername=
+productBanner=zurvan-banner.png
+welcomeBackgroundImage=wallpaper.png
+wallpaper=wallpaper.png
+wallpapername=Zurvan
 
 [Slideshow]
 show=show.qml

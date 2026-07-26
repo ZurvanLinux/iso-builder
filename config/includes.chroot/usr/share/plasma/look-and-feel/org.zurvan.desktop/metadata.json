@@ -1,0 +1,19 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel/Splash",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Zurvan OS",
+                "Email": "hello@zurvanlinux.org"
+            }
+        ],
+        "Category": "Splash Screen",
+        "Description": "Zurvan OS cosmic session-start splash",
+        "Id": "org.zurvan.desktop",
+        "License": "CC-BY-SA-4.0",
+        "Name": "Zurvan",
+        "Website": "https://zurvanlinux.org/"
+    },
+    "Keywords": "Desktop;Workspace;Appearance;Look and Feel;Logout;Lock;Suspend;Shutdown;Hibernate;",
+    "X-Plasma-APIVersion": "2"
+}
