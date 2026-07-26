@@ -12,3 +12,5 @@ kde-l10n-fa
 qt6-translations-l10n
 # Language support infrastructure for discovering/installing missing translations
 language-selector-common
+# Additional calendar plugins for Plasma 6 (Alternate Calendar, etc.)
+plasma-calendar-addons
