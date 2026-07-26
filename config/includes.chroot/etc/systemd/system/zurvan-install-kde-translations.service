@@ -1,0 +1,15 @@
+[Unit]
+Description=Zurvan Linux first-boot KDE Persian translation installer
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=!/var/lib/zurvan/kde-translations-installed
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/mkdir -p /var/lib/zurvan
+ExecStart=/usr/local/bin/zurvan-install-kde-translations.sh
+RemainAfterExit=yes
+StandardOutput=journal+console
+
+[Install]
+WantedBy=graphical.target

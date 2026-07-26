@@ -6,3 +6,9 @@ xdg-desktop-portal-gtk
 xsettingsd
 qt5-image-formats-plugins
 unrar
+# KDE Persian translation
+kde-l10n-fa
+# Qt6 translations (includes Persian)
+qt6-translations-l10n
+# Language support infrastructure for discovering/installing missing translations
+language-selector-common
